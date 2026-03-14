@@ -269,6 +269,7 @@ let turmas = [];
 let aulaAtual = null; // {id, titulo, turma_id, materia, file_id}
 let turmaAtiva = null;
 let aulas = [];
+let _pendingTurmaId = null;
 
 async function post(payload) {
   const r = await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(payload)});
@@ -291,7 +292,7 @@ function toast(msg) {
 // INIT
 // ═══════════════════════════════════════════════
 window.addEventListener('load', async () => {
-  if (!user || user.tipo !== 'professor') { window.location.href='index.html'; return; }
+  if (!user || user.tipo !== 'professor') { window.location.href='login.html'; return; }
   document.getElementById('sidebarNome').textContent = user.nome;
   await loadTurmas();
   showSection('dashboard');
@@ -299,7 +300,7 @@ window.addEventListener('load', async () => {
 
 function logout() {
   localStorage.removeItem('ava_user');
-  window.location.href = 'index.html';
+  window.location.href = 'login.html';
 }
 
 function setActive(id) {
@@ -577,9 +578,7 @@ async function salvarNota(email, aula_id, turma_id, valor) {
 // ═══════════════════════════════════════════════
 function novaAula(turma_id) {
   aulaAtual = null;
-  document.getElementById('visualizacao').innerHTML = '';
-  const tiId = document.getElementById('builderTurmaId');
-  if (tiId && turma_id) tiId.value = turma_id;
+  _pendingTurmaId = turma_id || null;
   showSection('builder');
 }
 
@@ -691,6 +690,18 @@ function renderBuilder() {
       </div>
     </div>
   `;
+
+  // Apply pending turma selection (when coming from novaAula)
+  if (_pendingTurmaId) {
+    const sel = document.getElementById('builderTurmaId');
+    if (sel) sel.value = _pendingTurmaId;
+    _pendingTurmaId = null;
+  }
+
+  // Clear canvas if new lesson (aulaAtual is null)
+  if (!aulaAtual) {
+    document.getElementById('visualizacao').innerHTML = '';
+  }
 }
 
 // ═══════════════════════════════════════════════
