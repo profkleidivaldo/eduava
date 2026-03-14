@@ -292,7 +292,7 @@ function toast(msg) {
 // INIT
 // ═══════════════════════════════════════════════
 window.addEventListener('load', async () => {
-  if (!user || user.tipo !== 'professor') { window.location.href='login.html'; return; }
+  if (!user || user.tipo !== 'professor') { window.location.href='index.html'; return; }
   document.getElementById('sidebarNome').textContent = user.nome;
   await loadTurmas();
   showSection('dashboard');
@@ -300,7 +300,7 @@ window.addEventListener('load', async () => {
 
 function logout() {
   localStorage.removeItem('ava_user');
-  window.location.href = 'login.html';
+  window.location.href = 'index.html';
 }
 
 function setActive(id) {
