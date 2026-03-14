@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EduAVA · Aluno</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --p1:#4f46e5;--p2:#7c3aed;--grad:linear-gradient(135deg,var(--p1),var(--p2));
+  --dark:#1e1b4b;--sidebar-w:260px;
+  --text:#1f2937;--muted:#6b7280;--border:#e5e7eb;--bg:#f5f3ff;--white:#fff;
+  --green:#059669;--red:#dc2626;--amber:#d97706;
+  --radius:14px;--shadow:0 4px 20px rgba(79,70,229,.1);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--text);height:100vh;display:flex;overflow:hidden;}
+
+.sidebar{width:var(--sidebar-w);background:var(--dark);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;}
+.sidebar-logo{padding:24px 20px;border-bottom:1px solid rgba(255,255,255,.08);}
+.sidebar-logo h1{font-family:'Outfit',sans-serif;font-size:22px;font-weight:800;color:#fff;display:flex;align-items:center;gap:10px;}
+.sidebar-logo span{font-size:13px;color:rgba(255,255,255,.5);font-weight:400;display:block;margin-top:2px;}
+.user-card{margin:16px;background:rgba(255,255,255,.08);border-radius:12px;padding:14px 16px;}
+.user-card .uname{font-family:'Outfit',sans-serif;font-size:15px;font-weight:600;color:#fff;}
+.user-card .urole{font-size:12px;color:rgba(255,255,255,.5);margin-top:2px;}
+.sidebar-section{padding:8px 16px;font-size:10px;font-weight:700;color:rgba(255,255,255,.3);letter-spacing:1.5px;text-transform:uppercase;margin-top:8px;}
+.nav-item{display:flex;align-items:center;gap:12px;padding:11px 20px;cursor:pointer;transition:all .2s;color:rgba(255,255,255,.65);font-size:14px;font-weight:500;position:relative;}
+.nav-item:hover{background:rgba(255,255,255,.07);color:#fff;}
+.nav-item.active{background:var(--grad);color:#fff;font-weight:600;}
+.nav-item.active::before{content:'';position:absolute;left:0;top:6px;bottom:6px;width:3px;background:#fff;border-radius:0 4px 4px 0;}
+.nav-icon{font-size:18px;width:22px;text-align:center;flex-shrink:0;}
+.nav-turma-item{padding:9px 20px 9px 52px;font-size:13px;color:rgba(255,255,255,.55);cursor:pointer;transition:all .2s;}
+.nav-turma-item:hover{color:#fff;background:rgba(255,255,255,.05);}
+.nav-turma-item.active{color:var(--p1);font-weight:600;}
+.sidebar-bottom{margin-top:auto;padding:16px;}
+.btn-logout{width:100%;padding:11px;background:rgba(255,255,255,.08);color:rgba(255,255,255,.6);border:none;border-radius:10px;cursor:pointer;font-size:13px;font-weight:600;transition:all .2s;}
+.btn-logout:hover{background:rgba(220,38,38,.3);color:#fff;}
+
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.topbar{background:var(--white);padding:0 28px;height:64px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);flex-shrink:0;}
+.topbar h2{font-family:'Outfit',sans-serif;font-size:20px;font-weight:700;color:var(--dark);}
+.topbar-actions{display:flex;gap:10px;}
+.content{flex:1;overflow-y:auto;padding:28px;}
+
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border:none;border-radius:10px;cursor:pointer;font-size:14px;font-weight:600;transition:all .2s;font-family:'Outfit',sans-serif;}
+.btn-primary{background:var(--grad);color:#fff;}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(79,70,229,.3);}
+.btn-ghost{background:rgba(79,70,229,.08);color:var(--p1);}
+.btn-sm{padding:7px 14px;font-size:13px;}
+
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;margin-bottom:24px;}
+.stat-card{background:var(--white);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow);display:flex;align-items:center;gap:16px;}
+.stat-icon{width:50px;height:50px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;}
+.stat-icon.blue{background:#eef2ff;} .stat-icon.green{background:#f0fdf4;} .stat-icon.amber{background:#fffbeb;}
+.stat-info .num{font-family:'Outfit',sans-serif;font-size:28px;font-weight:800;color:var(--dark);}
+.stat-info .lbl{font-size:13px;color:var(--muted);margin-top:2px;}
+
+.turma-card{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px;display:flex;flex-direction:column;gap:10px;cursor:pointer;transition:all .2s;border:2px solid transparent;}
+.turma-card:hover{border-color:var(--p1);transform:translateY(-3px);}
+.turma-card h3{font-family:'Outfit',sans-serif;font-size:18px;font-weight:700;}
+.turma-card .tm{font-size:13px;color:var(--muted);}
+
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.section-header h3{font-family:'Outfit',sans-serif;font-size:18px;font-weight:700;color:var(--dark);}
+
+.list-card{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;margin-bottom:16px;}
+.list-item{padding:14px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px;transition:background .15s;}
+.list-item:last-child{border-bottom:none;}
+.list-item:hover{background:#fafafa;}
+.list-item-icon{width:40px;height:40px;border-radius:10px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.list-item-info{flex:1;min-width:0;}
+.list-item-info .title{font-weight:700;font-size:15px;color:var(--dark);}
+.list-item-info .sub{font-size:13px;color:var(--muted);margin-top:2px;}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;}
+.badge-blue{background:#eef2ff;color:var(--p1);}
+.badge-green{background:#dcfce7;color:var(--green);}
+
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;backdrop-filter:blur(4px);align-items:center;justify-content:center;}
+.overlay.open{display:flex;}
+.popup-box{background:var(--white);border-radius:20px;padding:32px;width:90%;max-width:480px;animation:popIn .25s ease;}
+@keyframes popIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+.popup-box h2{font-family:'Outfit',sans-serif;font-size:22px;font-weight:700;color:var(--dark);margin-bottom:20px;}
+.form-field{margin-bottom:16px;}
+.form-field label{display:block;font-weight:700;font-size:13px;color:var(--text);margin-bottom:6px;}
+.form-field input{width:100%;padding:12px 14px;border:2px solid var(--border);border-radius:10px;font-size:15px;outline:none;transition:border-color .2s;}
+.form-field input:focus{border-color:var(--p1);}
+.popup-actions{display:flex;gap:10px;margin-top:20px;}
+.popup-actions .btn{flex:1;justify-content:center;}
+.err{color:var(--red);font-size:13px;margin-top:6px;display:none;}
+
+/* ── Lesson Viewer ── */
+.lesson-viewer{position:fixed;inset:0;background:var(--bg);z-index:2000;display:none;flex-direction:column;}
+.lesson-viewer.open{display:flex;}
+.lesson-topbar{background:var(--white);padding:0 24px;height:60px;display:flex;align-items:center;gap:16px;border-bottom:1px solid var(--border);flex-shrink:0;}
+.lesson-topbar h2{font-family:'Outfit',sans-serif;font-size:18px;font-weight:700;flex:1;}
+.lesson-body{flex:1;overflow-y:auto;padding:40px 20px;}
+.lesson-content-area{max-width:860px;margin:0 auto;background:var(--white);border-radius:var(--radius);padding:40px;box-shadow:var(--shadow);}
+
+/* Content styles for lesson viewer */
+.lesson-content-area h1{text-align:center;color:#fff;font-family:'Outfit',sans-serif;font-size:36px;font-weight:800;display:flex;align-items:center;justify-content:center;min-height:180px;padding:30px;background:var(--grad);border-radius:12px;margin:0 0 30px;text-shadow:2px 2px 8px rgba(0,0,0,.3);}
+.lesson-content-area h2{color:var(--p1);font-size:28px;margin:30px 0 15px;padding-bottom:10px;border-bottom:3px solid var(--p1);}
+.lesson-content-area h2+p:first-letter{float:left;font-size:3.8em;line-height:.9;padding-right:12px;font-weight:bold;color:var(--p1);}
+.lesson-content-area p{margin:15px 0;text-align:justify;font-family:'Georgia',serif;font-size:18px;line-height:1.8;}
+.lesson-content-area img{max-width:100%;height:auto;border-radius:10px;margin:20px 0;box-shadow:0 4px 15px rgba(0,0,0,.1);}
+.lesson-content-area .video-container{position:relative;padding-bottom:56.25%;height:0;margin:20px 0;border-radius:10px;overflow:hidden;box-shadow:0 4px 15px rgba(0,0,0,.1);}
+.lesson-content-area .video-container iframe{position:absolute;top:0;left:0;width:100%;height:100%;}
+.lesson-content-area .dica-destacada{background:linear-gradient(135deg,#eef2ff,#f5f3ff);padding:25px;border-radius:12px;border-left:5px solid var(--p1);font-weight:500;margin:25px 0;font-size:16px;}
+.lesson-content-area .dica-destacada::before{content:"💡 Dica: ";font-weight:bold;color:var(--p1);}
+.lesson-content-area .pergunta-direta{margin:25px 0;padding:20px;background:linear-gradient(135deg,#eef2ff,#f5f3ff);border-left:5px solid var(--p2);border-radius:12px;font-weight:600;color:var(--p2);}
+.lesson-content-area .papel-resposta{display:block;width:100%;min-height:150px;padding:15px;font-family:'Georgia',serif;font-size:16px;line-height:32px;border:2px solid var(--border);border-radius:10px;outline:none;background:#fff;resize:vertical;margin:15px 0;transition:border-color .2s;}
+.lesson-content-area .papel-resposta:focus{border-color:var(--p1);box-shadow:0 0 0 3px rgba(79,70,229,.1);}
+.lesson-content-area .quiz-card{margin:25px 0;padding:25px;border-radius:12px;background:#fff;box-shadow:0 4px 15px rgba(0,0,0,.08);border:2px solid var(--border);}
+.lesson-content-area .quiz-header{font-weight:bold;margin-bottom:12px;color:var(--p1);font-size:15px;text-transform:uppercase;}
+.lesson-content-area .quiz-enunciado{font-size:16px;color:#555;font-style:italic;margin-bottom:10px;}
+.lesson-content-area .quiz-pergunta{font-size:18px;font-weight:600;color:#333;margin-bottom:15px;}
+.lesson-content-area .quiz-image{max-width:100%;border-radius:10px;margin:10px 0;}
+.lesson-content-area .option-label{display:block;margin:10px 0;padding:14px;border-radius:10px;border:2px solid var(--border);cursor:pointer;transition:all .2s;background:#fff;}
+.lesson-content-area .option-label:hover{border-color:var(--p1);background:#eef2ff;}
+.lesson-content-area .option-label.correct{background:#dcfce7;border-color:var(--green);}
+.lesson-content-area .option-label.incorrect{background:#fee2e2;border-color:var(--red);}
+.lesson-content-area .option-input{margin-right:10px;}
+.lesson-content-area .quiz-actions{margin-top:16px;display:flex;gap:12px;align-items:center;}
+.lesson-content-area .quiz-result{font-weight:700;font-size:15px;}
+.lesson-content-area .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border:none;border-radius:10px;cursor:pointer;font-size:14px;font-weight:600;transition:all .2s;background:var(--grad);color:#fff;}
+
+.sync-bar{background:var(--dark);color:rgba(255,255,255,.8);text-align:center;padding:8px;font-size:12px;flex-shrink:0;}
+.sync-bar.syncing{background:var(--p1);}
+.sync-bar.saved{background:var(--green);}
+
+/* grades */
+.grades-table{width:100%;border-collapse:collapse;font-size:14px;}
+.grades-table th{background:var(--dark);color:rgba(255,255,255,.8);padding:12px 16px;text-align:left;font-size:12px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;}
+.grades-table td{padding:12px 16px;border-bottom:1px solid var(--border);}
+.grades-table tr:hover td{background:#fafafa;}
+.grade-val{font-family:'Outfit',sans-serif;font-size:20px;font-weight:800;color:var(--p1);}
+
+.empty-state{text-align:center;padding:60px 20px;color:var(--muted);}
+.empty-state .es-icon{font-size:56px;margin-bottom:16px;}
+.empty-state h3{font-family:'Outfit',sans-serif;font-size:20px;font-weight:700;color:var(--text);margin-bottom:8px;}
+.hidden{display:none!important;}
+.loading{text-align:center;padding:40px;color:var(--muted);}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1f2937;color:#fff;padding:12px 24px;border-radius:10px;font-size:14px;font-weight:600;z-index:9999;animation:toastIn .3s ease;pointer-events:none;}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,16px)}to{opacity:1;transform:translate(-50%,0)}}
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <h1>📚 EduAVA</h1>
+    <span>Painel do Aluno</span>
+  </div>
+  <div class="user-card">
+    <div class="uname" id="sidebarNome">Carregando...</div>
+    <div class="urole">👨‍🎓 Estudante</div>
+  </div>
+  <div class="sidebar-section">Menu</div>
+  <div class="nav-item active" onclick="showSection('dashboard')" id="nav-dashboard">
+    <span class="nav-icon">🏠</span> Início
+  </div>
+  <div class="nav-item" onclick="showSection('notas')" id="nav-notas">
+    <span class="nav-icon">📊</span> Minhas Notas
+  </div>
+  <div class="sidebar-section" id="turmasNavSection" style="display:none">Turmas</div>
+  <div id="turmasNavList"></div>
+  <div class="sidebar-bottom">
+    <button class="btn btn-ghost btn-sm" style="width:100%;margin-bottom:8px;justify-content:center" onclick="openOverlay('overlayJoin')">+ Entrar em Turma</button>
+    <button class="btn-logout" onclick="logout()">↩ Sair</button>
+  </div>
+</nav>
+
+<!-- Main -->
+<div class="main">
+  <div class="topbar">
+    <h2 id="pageTitle">Início</h2>
+    <div class="topbar-actions" id="topbarActions"></div>
+  </div>
+  <div class="content" id="mainContent">
+    <div class="loading">Carregando...</div>
+  </div>
+</div>
+
+<!-- Lesson Viewer -->
+<div class="lesson-viewer" id="lessonViewer">
+  <div class="lesson-topbar">
+    <button class="btn btn-ghost btn-sm" onclick="closeLesson()">← Voltar</button>
+    <h2 id="lessonTitle">Aula</h2>
+    <div id="syncStatus" style="font-size:13px;color:var(--muted)">💾 Auto-salvar ativo</div>
+  </div>
+  <div id="syncBar" class="sync-bar hidden"></div>
+  <div class="lesson-body">
+    <div class="lesson-content-area" id="lessonContentArea"></div>
+  </div>
+</div>
+
+<!-- Overlay Entrar em Turma -->
+<div class="overlay" id="overlayJoin">
+  <div class="popup-box">
+    <h2>🔑 Entrar em Turma</h2>
+    <p style="color:var(--muted);font-size:14px;margin-bottom:20px">Peça o código da turma ao seu professor e insira abaixo.</p>
+    <div class="form-field"><label>Código da Turma</label><input type="text" id="joinCodigo" placeholder="Ex: ABC123" style="text-transform:uppercase;font-size:22px;letter-spacing:4px;font-weight:700"></div>
+    <div class="err" id="joinErr"></div>
+    <div class="popup-actions">
+      <button class="btn btn-primary" onclick="joinTurma()">Entrar</button>
+      <button class="btn btn-ghost" onclick="closeOverlay('overlayJoin')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════
+let API  = localStorage.getItem('ava_api') || '';
+let user = JSON.parse(localStorage.getItem('ava_user') || 'null');
+let turmas = [];
+let aulaAberta = null;
+let syncTimer  = null;
+let pendingSync = {};
+
+async function post(payload) {
+  const r = await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(payload)});
+  return r.json();
+}
+
+function toast(msg) {
+  const el=document.createElement('div'); el.className='toast'; el.textContent=msg;
+  document.body.appendChild(el); setTimeout(()=>el.remove(),2800);
+}
+
+// ═══════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════
+window.addEventListener('load', async () => {
+  if (!user || user.tipo !== 'aluno') { window.location.href='index.html'; return; }
+  document.getElementById('sidebarNome').textContent = user.nome;
+  await loadTurmas();
+  showSection('dashboard');
+});
+
+function logout() { localStorage.removeItem('ava_user'); window.location.href='index.html'; }
+
+function setActive(id) {
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const el=document.getElementById('nav-'+id); if(el) el.classList.add('active');
+}
+
+// ═══════════════════════════════════════════════
+// TURMAS
+// ═══════════════════════════════════════════════
+async function loadTurmas() {
+  const data = await post({ action:'getTurmas', email: user.email });
+  turmas = data.turmas || [];
+  renderTurmasNav();
+}
+
+function renderTurmasNav() {
+  const list=document.getElementById('turmasNavList');
+  const sec=document.getElementById('turmasNavSection');
+  if(!turmas.length){list.innerHTML='';sec.style.display='none';return;}
+  sec.style.display='block';
+  list.innerHTML=turmas.map(t=>`
+    <div class="nav-turma-item" onclick="openTurma('${t.id}')" id="navt-${t.id}">${t.nome}</div>
+  `).join('');
+}
+
+async function joinTurma() {
+  const codigo=document.getElementById('joinCodigo').value.trim().toUpperCase();
+  const errEl =document.getElementById('joinErr');
+  errEl.style.display='none';
+  if(!codigo){errEl.textContent='Digite o código.';errEl.style.display='block';return;}
+  const data = await post({ action:'joinTurma', aluno_email:user.email, codigo });
+  if(data.error){errEl.textContent=data.error;errEl.style.display='block';return;}
+  toast('✅ Matriculado em: '+data.turma);
+  document.getElementById('joinCodigo').value='';
+  closeOverlay('overlayJoin');
+  await loadTurmas();
+  showSection('dashboard');
+}
+
+// ═══════════════════════════════════════════════
+// SECTIONS
+// ═══════════════════════════════════════════════
+function showSection(section, param) {
+  document.getElementById('pageTitle').textContent = 'Carregando...';
+  document.getElementById('topbarActions').innerHTML = '';
+  document.querySelectorAll('.nav-turma-item').forEach(n=>n.classList.remove('active'));
+
+  switch(section) {
+    case 'dashboard':
+      setActive('dashboard');
+      document.getElementById('pageTitle').textContent = 'Início';
+      renderDashboard(); break;
+    case 'notas':
+      setActive('notas');
+      document.getElementById('pageTitle').textContent = 'Minhas Notas';
+      renderNotas(); break;
+    case 'turma':
+      document.getElementById('pageTitle').textContent = param.nome;
+      const nav=document.getElementById('navt-'+param.id); if(nav) nav.classList.add('active');
+      renderAulas(param); break;
+  }
+}
+
+// ═══════════════════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════════════════
+function renderDashboard() {
+  document.getElementById('mainContent').innerHTML = `
+    <div style="font-family:'Outfit',sans-serif;font-size:26px;font-weight:700;color:var(--dark);margin-bottom:24px">
+      Olá, ${user.nome.split(' ')[0]}! 👋
+    </div>
+    <div class="cards-grid">
+      <div class="stat-card"><div class="stat-icon blue">🏫</div><div class="stat-info"><div class="num">${turmas.length}</div><div class="lbl">Turmas</div></div></div>
+    </div>
+    ${turmas.length ? `
+      <div class="section-header"><h3>Suas Turmas</h3></div>
+      <div class="cards-grid">
+        ${turmas.map(t=>`
+          <div class="turma-card" onclick="openTurma('${t.id}')">
+            <h3>${t.nome}</h3>
+            <div class="tm">📖 Clique para ver as aulas</div>
+          </div>
+        `).join('')}
+      </div>
+    ` : `
+      <div class="empty-state">
+        <div class="es-icon">🏫</div>
+        <h3>Você ainda não está em nenhuma turma</h3>
+        <p>Peça o código de acesso ao seu professor e clique em <strong>+ Entrar em Turma</strong>.</p>
+        <button class="btn btn-primary" style="margin-top:20px" onclick="openOverlay('overlayJoin')">+ Entrar em Turma</button>
+      </div>
+    `}
+  `;
+}
+
+function openTurma(id) {
+  const t = turmas.find(t=>t.id===id);
+  if (t) showSection('turma', t);
+}
+
+// ═══════════════════════════════════════════════
+// AULAS
+// ═══════════════════════════════════════════════
+async function renderAulas(turma) {
+  document.getElementById('mainContent').innerHTML = '<div class="loading">Carregando aulas...</div>';
+  const data = await post({ action:'getAulas', turma_id: turma.id });
+  const aulas = (data.aulas||[]).filter(a=>a.status==='publicada');
+
+  document.getElementById('mainContent').innerHTML = `
+    <div class="section-header"><h3>📖 Aulas de ${turma.nome}</h3></div>
+    <div class="list-card">
+      ${aulas.length ? aulas.map(a=>`
+        <div class="list-item" style="cursor:pointer" onclick="abrirAula('${a.id}','${escJ(a.titulo)}','${a.file_id||''}','${turma.id}')">
+          <div class="list-item-icon">📄</div>
+          <div class="list-item-info">
+            <div class="title">${a.titulo}</div>
+            <div class="sub">${a.materia||'Sem matéria'} · ${new Date(a.created_at).toLocaleDateString('pt-BR')}</div>
+          </div>
+          <span class="badge badge-blue">→ Abrir</span>
+        </div>
+      `).join('') : '<div class="empty-state" style="padding:30px"><div class="es-icon">📄</div><h3>Nenhuma aula disponível</h3></div>'}
+    </div>
+  `;
+}
+
+function escJ(s) { return String(s||'').replace(/'/g,"\\'").replace(/"/g,'\\"'); }
+
+// ═══════════════════════════════════════════════
+// LESSON VIEWER
+// ═══════════════════════════════════════════════
+async function abrirAula(id, titulo, file_id, turma_id) {
+  toast('Abrindo aula...');
+  const data = await post({ action:'getAula', id });
+  if (data.error) { toast('Erro: '+data.error); return; }
+
+  aulaAberta = { id, titulo, turma_id };
+  document.getElementById('lessonTitle').textContent = titulo;
+  document.getElementById('lessonViewer').classList.add('open');
+
+  // Fetch saved responses and restore to localStorage before rendering
+  const respData = await post({ action:'getRespostas', aluno_email: user.email, aula_id: id });
+  const respostas = respData.respostas || [];
+  respostas.forEach(r => localStorage.setItem(r.chave, r.valor));
+
+  // Render lesson
+  const area = document.getElementById('lessonContentArea');
+  area.innerHTML = data.aula.html || '<p style="color:var(--muted)">Aula sem conteúdo.</p>';
+
+  // Restore textareas from localStorage
+  area.querySelectorAll('.papel-resposta').forEach(ta => {
+    const chave = ta.getAttribute('data-chave');
+    if (chave && localStorage.getItem(chave)) ta.value = localStorage.getItem(chave);
+    ta.addEventListener('input', () => {
+      if (chave) {
+        localStorage.setItem(chave, ta.value);
+        scheduleSync(chave, ta.value, 'resposta');
+      }
+    });
+  });
+
+  // Restore quiz answers
+  area.querySelectorAll('.quiz-card').forEach(card => {
+    const qid = card.getAttribute('data-quiz-id'); if (!qid) return;
+    const key = 'quiz_answer_'+qid;
+    card.querySelectorAll('input[type=radio]').forEach(r => {
+      r.addEventListener('change', e => {
+        localStorage.setItem(key, e.target.value);
+        scheduleSync(key, e.target.value, 'quiz');
+      });
+    });
+    const saved = localStorage.getItem(key);
+    if (saved) { const r=card.querySelector(`input[value="${saved}"]`); if(r) r.checked=true; }
+  });
+
+  // Quiz verify
+  area.querySelectorAll('[onclick^="verificarQuiz"]').forEach(btn => {
+    btn.onclick = () => verificarQuiz(btn);
+  });
+}
+
+function verificarQuiz(btn) {
+  const qid=btn.getAttribute('data-quiz-id');
+  const container=btn.closest('.quiz-card'); if(!container) return;
+  const resultBox=container.querySelector(`.quiz-result[data-result-for="${qid}"]`)||container.querySelector('.quiz-result');
+  container.querySelectorAll('.option-label').forEach(l=>l.classList.remove('correct','incorrect'));
+  const correctR=Array.from(container.querySelectorAll('input[type=radio]')).find(r=>r.hasAttribute('data-correct'));
+  const selected=container.querySelector('input[type=radio]:checked');
+  if(!selected){if(resultBox){resultBox.textContent='⚠️ Escolha uma opção';resultBox.style.color='#d97706';} return;}
+  if(correctR) correctR.closest('.option-label')?.classList.add('correct');
+  const selLabel=selected.closest('.option-label');
+  if(selLabel&&!selected.hasAttribute('data-correct')) selLabel.classList.add('incorrect');
+  const key='quiz_answer_'+qid;
+  localStorage.setItem(key,selected.value);
+  scheduleSync(key,selected.value,'quiz');
+  if(resultBox){
+    const ok=selected.hasAttribute('data-correct');
+    resultBox.textContent=ok?'✅ Correto!':'❌ Incorreto';
+    resultBox.style.color=ok?'#059669':'#dc2626';
+  }
+}
+window.verificarQuiz = verificarQuiz;
+
+// Auto-sync to Sheets
+function scheduleSync(chave, valor, tipo) {
+  pendingSync[chave] = { chave, valor, tipo };
+  clearTimeout(syncTimer);
+  setSyncBar('syncing','⏳ Salvando...');
+  syncTimer = setTimeout(doSync, 2000);
+}
+
+async function doSync() {
+  const items = Object.values(pendingSync);
+  if (!items.length || !aulaAberta) return;
+  pendingSync = {};
+  setSyncBar('syncing','☁️ Sincronizando...');
+  try {
+    for (const item of items) {
+      await post({
+        action:'saveResposta',
+        aluno_email: user.email,
+        aula_id: aulaAberta.id,
+        chave: item.chave,
+        valor: item.valor
+      });
+    }
+    setSyncBar('saved','✅ Salvo na nuvem');
+    setTimeout(()=>hideSyncBar(),2000);
+  } catch(e) {
+    setSyncBar('','⚠️ Erro ao salvar');
+    setTimeout(()=>hideSyncBar(),3000);
+  }
+}
+
+function setSyncBar(cls,msg) {
+  const bar=document.getElementById('syncBar');
+  bar.className='sync-bar'+(cls?' '+cls:'');
+  bar.textContent=msg;
+  bar.classList.remove('hidden');
+}
+function hideSyncBar() { document.getElementById('syncBar').classList.add('hidden'); }
+
+async function closeLesson() {
+  // Final sync before closing
+  if (Object.keys(pendingSync).length) await doSync();
+  document.getElementById('lessonViewer').classList.remove('open');
+  document.getElementById('lessonContentArea').innerHTML='';
+  aulaAberta = null;
+}
+
+// ═══════════════════════════════════════════════
+// NOTAS
+// ═══════════════════════════════════════════════
+async function renderNotas() {
+  document.getElementById('mainContent').innerHTML='<div class="loading">Carregando notas...</div>';
+  const allNotas = [];
+  for (const t of turmas) {
+    const nd = await post({ action:'getNotas', turma_id: t.id });
+    const minhas = (nd.notas||[]).filter(n=>n.aluno_email.toLowerCase()===user.email.toLowerCase());
+    if (minhas.length) allNotas.push({ turma: t.nome, notas: minhas, turma_id: t.id });
+  }
+
+  if (!allNotas.length) {
+    document.getElementById('mainContent').innerHTML = `
+      <div class="empty-state"><div class="es-icon">📊</div><h3>Nenhuma nota lançada ainda</h3><p>As notas aparecerão aqui após o professor lançá-las.</p></div>`;
+    return;
+  }
+
+  // Get aula names
+  const aulaMap = {};
+  for (const t of turmas) {
+    const ad = await post({ action:'getAulas', turma_id: t.id });
+    (ad.aulas||[]).forEach(a => aulaMap[a.id]=a.titulo);
+  }
+
+  document.getElementById('mainContent').innerHTML = allNotas.map(tg => {
+    const media = (tg.notas.reduce((s,n)=>s+Number(n.nota||0),0)/tg.notas.length).toFixed(1);
+    return `
+      <div class="section-header"><h3>🏫 ${tg.turma}</h3><span class="badge badge-blue">Média: ${media}</span></div>
+      <div class="list-card">
+        <table class="grades-table" style="width:100%">
+          <tr><th>Aula</th><th>Nota</th><th>Comentário</th><th>Data</th></tr>
+          ${tg.notas.map(n=>`
+            <tr>
+              <td style="font-weight:700">${aulaMap[n.aula_id]||n.aula_id}</td>
+              <td><span class="grade-val">${n.nota}</span></td>
+              <td style="color:var(--muted)">${n.comentario||'—'}</td>
+              <td style="color:var(--muted);font-size:13px">${n.data?new Date(n.data).toLocaleDateString('pt-BR'):'—'}</td>
+            </tr>
+          `).join('')}
+        </table>
+      </div>
+    `;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════
+// OVERLAYS
+// ═══════════════════════════════════════════════
+function openOverlay(id)  { document.getElementById(id).classList.add('open'); }
+function closeOverlay(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.overlay').forEach(o=>{
+  o.addEventListener('click',e=>{ if(e.target===o) o.classList.remove('open'); });
+});
+</script>
+</body>
+</html>
