@@ -587,12 +587,17 @@ async function editarAula(id, file_id, titulo, materia, turma_id) {
   const data = await post({ action:'getAula', id });
   if (data.error) { toast('Erro: '+data.error); return; }
   aulaAtual = { id, file_id, titulo, materia, turma_id };
-  document.getElementById('visualizacao').innerHTML = data.aula.html || '';
+
+  // Abre o builder PRIMEIRO (cria os elementos na página)
   showSection('builder');
-  document.getElementById('builderTitulo').value = titulo;
+
+  // Agora preenche os campos que já existem
+  document.getElementById('builderTitulo').value  = titulo;
   document.getElementById('builderMateria').value = materia;
   document.getElementById('builderTurmaId').value = turma_id;
-  // Re-run scripts in loaded content
+  document.getElementById('visualizacao').innerHTML = data.aula.html || '';
+
+  // Restaura respostas de quiz salvas localmente
   document.querySelectorAll('#visualizacao .quiz-card').forEach(c => {
     const saved = localStorage.getItem('quiz_answer_'+c.dataset.quizId);
     if (saved) { const r=c.querySelector(`input[value="${saved}"]`); if(r) r.checked=true; }
