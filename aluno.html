@@ -138,6 +138,39 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--text);height
 .empty-state .es-icon{font-size:56px;margin-bottom:16px;}
 .empty-state h3{font-family:'Outfit',sans-serif;font-size:20px;font-weight:700;color:var(--text);margin-bottom:8px;}
 .hidden{display:none!important;}
+
+/* ── Hamburger ── */
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:8px;border:none;background:transparent;flex-shrink:0;}
+.hamburger span{display:block;width:22px;height:2px;background:var(--text);border-radius:2px;transition:all .3s;}
+.hamburger.active span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+.hamburger.active span:nth-child(2){opacity:0;}
+.hamburger.active span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+.sidebar-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:499;backdrop-filter:blur(2px);}
+.sidebar-backdrop.open{display:block;}
+
+@media(max-width:900px){
+  .hamburger{display:flex;}
+  .sidebar{position:fixed;left:-280px;top:0;bottom:0;z-index:500;transition:left .3s ease;box-shadow:none;}
+  .sidebar.open{left:0;box-shadow:8px 0 32px rgba(0,0,0,.25);}
+  .main{width:100%;}
+  .content{padding:16px;}
+  .cards-grid{grid-template-columns:1fr 1fr;}
+  .topbar{padding:0 16px;}
+  .topbar h2{font-size:16px;}
+  .list-item{flex-wrap:wrap;gap:6px;}
+  .lesson-body{padding:16px 10px;}
+  .lesson-content-area{padding:20px 16px;}
+  .lesson-topbar{padding:0 12px;gap:8px;}
+  .lesson-topbar h2{font-size:15px;}
+  .grades-table th,.grades-table td{padding:8px 10px;font-size:13px;}
+}
+@media(max-width:480px){
+  .cards-grid{grid-template-columns:1fr;}
+  .popup-box{padding:20px 16px;}
+  .lesson-content-area h1{font-size:24px;min-height:120px;}
+  .lesson-content-area h2{font-size:20px;}
+  .lesson-content-area p{font-size:16px;}
+}
 .loading{text-align:center;padding:40px;color:var(--muted);}
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1f2937;color:#fff;padding:12px 24px;border-radius:10px;font-size:14px;font-weight:600;z-index:9999;animation:toastIn .3s ease;pointer-events:none;}
 @keyframes toastIn{from{opacity:0;transform:translate(-50%,16px)}to{opacity:1;transform:translate(-50%,0)}}
@@ -170,9 +203,15 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--text);height
   </div>
 </nav>
 
+<!-- Sidebar backdrop (mobile) -->
+<div class="sidebar-backdrop" id="sidebarBackdrop" onclick="closeSidebar()"></div>
+
 <!-- Main -->
 <div class="main">
   <div class="topbar">
+    <button class="hamburger" id="hamburgerBtn" onclick="toggleSidebar()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
     <h2 id="pageTitle">Início</h2>
     <div class="topbar-actions" id="topbarActions"></div>
   </div>
@@ -230,6 +269,23 @@ function toast(msg) {
 }
 
 // ═══════════════════════════════════════════════
+// SIDEBAR MOBILE
+// ═══════════════════════════════════════════════
+function toggleSidebar() {
+  const sb  = document.getElementById('sidebar');
+  const btn = document.getElementById('hamburgerBtn');
+  const bk  = document.getElementById('sidebarBackdrop');
+  sb.classList.toggle('open');
+  btn.classList.toggle('active');
+  bk.classList.toggle('open');
+}
+function closeSidebar() {
+  document.getElementById('sidebar')?.classList.remove('open');
+  document.getElementById('hamburgerBtn')?.classList.remove('active');
+  document.getElementById('sidebarBackdrop')?.classList.remove('open');
+}
+
+// ═══════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════
 window.addEventListener('load', async () => {
@@ -283,6 +339,7 @@ async function joinTurma() {
 // SECTIONS
 // ═══════════════════════════════════════════════
 function showSection(section, param) {
+  closeSidebar(); // fecha sidebar no mobile
   document.getElementById('pageTitle').textContent = 'Carregando...';
   document.getElementById('topbarActions').innerHTML = '';
   document.querySelectorAll('.nav-turma-item').forEach(n=>n.classList.remove('active'));
@@ -371,6 +428,7 @@ function escJ(s) { return String(s||'').replace(/'/g,"\\'").replace(/"/g,'\\"');
 // LESSON VIEWER
 // ═══════════════════════════════════════════════
 async function abrirAula(id, titulo, file_id, turma_id) {
+  closeSidebar();
   toast('Abrindo aula...');
   const data = await post({ action:'getAula', id });
   if (data.error) { toast('Erro: '+data.error); return; }
