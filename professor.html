@@ -182,11 +182,40 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--text);height
 .el-popup-actions .btn{flex:1;justify-content:center;}
 .two-cols{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
 
-@media(max-width:768px){
-  .sidebar{position:fixed;left:-100%;z-index:500;transition:left .3s;}
-  .sidebar.open{left:0;}
+/* ── Hamburger ── */
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:8px;border:none;background:transparent;flex-shrink:0;}
+.hamburger span{display:block;width:22px;height:2px;background:var(--text);border-radius:2px;transition:all .3s;}
+.hamburger.active span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+.hamburger.active span:nth-child(2){opacity:0;}
+.hamburger.active span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+.sidebar-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:499;backdrop-filter:blur(2px);}
+.sidebar-backdrop.open{display:block;}
+
+@media(max-width:900px){
+  .hamburger{display:flex;}
+  .sidebar{position:fixed;left:-280px;top:0;bottom:0;z-index:500;transition:left .3s ease;box-shadow:none;}
+  .sidebar.open{left:0;box-shadow:8px 0 32px rgba(0,0,0,.25);}
+  .main{width:100%;}
   .content{padding:16px;}
   .cards-grid{grid-template-columns:1fr 1fr;}
+  .builder-meta{flex-wrap:wrap;gap:8px;padding:10px 12px;}
+  .builder-meta span{display:none;}
+  .builder-meta input,.builder-meta select{width:100%!important;flex:1 1 100%;}
+  .builder-toolbar{gap:6px;padding:8px 10px;overflow-x:auto;flex-wrap:nowrap;}
+  .builder-btn{font-size:12px;padding:7px 10px;flex-shrink:0;}
+  .builder-canvas{padding:12px;}
+  .builder-editor{padding:20px;}
+  .list-item{flex-wrap:wrap;gap:8px;}
+  .list-item-actions{width:100%;display:flex;justify-content:flex-end;}
+  .topbar{padding:0 16px;}
+  .topbar h2{font-size:16px;}
+  .grades-table th,.grades-table td{padding:8px 10px;font-size:13px;}
+}
+@media(max-width:480px){
+  .cards-grid{grid-template-columns:1fr;}
+  .popup-box{padding:20px 16px;}
+  .list-item-actions .btn{font-size:11px;padding:5px 8px;}
+  .builder-btn .bi{display:none;}
 }
 </style>
 </head>
@@ -220,9 +249,15 @@ body{font-family:'Lato',sans-serif;background:var(--bg);color:var(--text);height
   </div>
 </nav>
 
+<!-- Sidebar backdrop (mobile) -->
+<div class="sidebar-backdrop" id="sidebarBackdrop" onclick="closeSidebar()"></div>
+
 <!-- Main -->
 <div class="main">
   <div class="topbar">
+    <button class="hamburger" id="hamburgerBtn" onclick="toggleSidebar()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
     <h2 id="pageTitle">Dashboard</h2>
     <div class="topbar-actions" id="topbarActions"></div>
   </div>
@@ -300,6 +335,23 @@ function toast(msg) {
 }
 
 // ═══════════════════════════════════════════════
+// SIDEBAR MOBILE
+// ═══════════════════════════════════════════════
+function toggleSidebar() {
+  const sb  = document.getElementById('sidebar');
+  const btn = document.getElementById('hamburgerBtn');
+  const bk  = document.getElementById('sidebarBackdrop');
+  sb.classList.toggle('open');
+  btn.classList.toggle('active');
+  bk.classList.toggle('open');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('hamburgerBtn').classList.remove('active');
+  document.getElementById('sidebarBackdrop').classList.remove('open');
+}
+
+// ═══════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════
 window.addEventListener('load', async () => {
@@ -368,6 +420,7 @@ function openTurma(id) {
 // SECTIONS
 // ═══════════════════════════════════════════════
 function showSection(section) {
+  closeSidebar(); // fecha sidebar no mobile ao navegar
   const content = document.getElementById('mainContent');
   const title   = document.getElementById('pageTitle');
   const actions = document.getElementById('topbarActions');
