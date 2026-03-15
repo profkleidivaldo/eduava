@@ -257,6 +257,7 @@ let turmas = [];
 let aulaAberta = null;
 let syncTimer  = null;
 let pendingSync = {};
+let emailPrefix = ''; // prefixo por aluno para isolar localStorage
 
 async function post(payload) {
   const r = await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(payload)});
@@ -291,6 +292,7 @@ function closeSidebar() {
 window.addEventListener('load', async () => {
   if (!user || user.tipo !== 'aluno') { window.location.href='index.html'; return; }
   document.getElementById('sidebarNome').textContent = user.nome;
+  emailPrefix = btoa(user.email) + '_'; // prefixo único por aluno
   await loadTurmas();
   showSection('dashboard');
 });
@@ -440,7 +442,8 @@ async function abrirAula(id, titulo, file_id, turma_id) {
   // Fetch saved responses and restore to localStorage before rendering
   const respData = await post({ action:'getRespostas', aluno_email: user.email, aula_id: id });
   const respostas = respData.respostas || [];
-  respostas.forEach(r => localStorage.setItem(r.chave, r.valor));
+  // Salva com prefixo do email para isolar respostas por aluno no mesmo dispositivo
+  respostas.forEach(r => localStorage.setItem(emailPrefix + r.chave, r.valor));
 
   // Render lesson
   const area = document.getElementById('lessonContentArea');
@@ -449,10 +452,10 @@ async function abrirAula(id, titulo, file_id, turma_id) {
   // Restore textareas from localStorage
   area.querySelectorAll('.papel-resposta').forEach(ta => {
     const chave = ta.getAttribute('data-chave');
-    if (chave && localStorage.getItem(chave)) ta.value = localStorage.getItem(chave);
+    if (chave && localStorage.getItem(emailPrefix + chave)) ta.value = localStorage.getItem(emailPrefix + chave);
     ta.addEventListener('input', () => {
       if (chave) {
-        localStorage.setItem(chave, ta.value);
+        localStorage.setItem(emailPrefix + chave, ta.value);
         scheduleSync(chave, ta.value, 'resposta');
       }
     });
@@ -464,11 +467,11 @@ async function abrirAula(id, titulo, file_id, turma_id) {
     const key = 'quiz_answer_'+qid;
     card.querySelectorAll('input[type=radio]').forEach(r => {
       r.addEventListener('change', e => {
-        localStorage.setItem(key, e.target.value);
+        localStorage.setItem(emailPrefix + key, e.target.value);
         scheduleSync(key, e.target.value, 'quiz');
       });
     });
-    const saved = localStorage.getItem(key);
+    const saved = localStorage.getItem(emailPrefix + key);
     if (saved) { const r=card.querySelector(`input[value="${saved}"]`); if(r) r.checked=true; }
   });
 
@@ -490,8 +493,8 @@ function verificarQuiz(btn) {
   const selLabel=selected.closest('.option-label');
   if(selLabel&&!selected.hasAttribute('data-correct')) selLabel.classList.add('incorrect');
   const key='quiz_answer_'+qid;
-  localStorage.setItem(key,selected.value);
-  scheduleSync(key,selected.value,'quiz');
+  localStorage.setItem(emailPrefix + key, selected.value);
+  scheduleSync(key, selected.value, 'quiz');
   if(resultBox){
     const ok=selected.hasAttribute('data-correct');
     resultBox.textContent=ok?'✅ Correto!':'❌ Incorreto';
