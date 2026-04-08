@@ -14,137 +14,210 @@
   --radius: 16px; --shadow: 0 20px 60px rgba(79,70,229,.18);
 }
 * { margin:0; padding:0; box-sizing:border-box; }
-body {
+
+html, body {
+  height: 100%;
   font-family: 'Lato', sans-serif;
-  min-height: 100vh; display: flex;
   background: var(--bg);
-  overflow: hidden;
+  color: var(--text);
 }
 
-/* ── Left panel ── */
+/* ── Layout principal: dois painéis lado a lado no desktop ── */
+.page-wrap {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: row;
+}
+
+/* ── Painel esquerdo (decorativo) ── */
 .panel-left {
-  width: 48%; background: var(--grad);
-  display: flex; flex-direction: column; justify-content: center; align-items: center;
-  padding: 60px; position: relative; overflow: hidden;
+  width: 46%;
+  flex-shrink: 0;
+  background: var(--grad);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 60px 48px;
+  position: relative;
+  overflow: hidden;
 }
 .panel-left::before {
   content: ''; position: absolute; width: 500px; height: 500px;
   border-radius: 50%; background: rgba(255,255,255,.06);
-  top: -100px; right: -100px;
+  top: -120px; right: -120px; pointer-events: none;
 }
 .panel-left::after {
   content: ''; position: absolute; width: 300px; height: 300px;
   border-radius: 50%; background: rgba(255,255,255,.06);
-  bottom: -80px; left: -60px;
+  bottom: -80px; left: -60px; pointer-events: none;
 }
-.logo-area { text-align: center; z-index: 1; }
+.logo-area { text-align: center; z-index: 1; width: 100%; }
 .logo-icon {
-  width: 90px; height: 90px; background: rgba(255,255,255,.18);
+  width: 88px; height: 88px; background: rgba(255,255,255,.18);
   border-radius: 28px; display: flex; align-items: center; justify-content: center;
-  font-size: 44px; margin: 0 auto 28px; backdrop-filter: blur(10px);
+  font-size: 44px; margin: 0 auto 24px;
   border: 2px solid rgba(255,255,255,.3);
   box-shadow: 0 8px 32px rgba(0,0,0,.15);
 }
 .logo-area h1 {
-  font-family: 'Outfit', sans-serif; font-size: 42px; font-weight: 800;
+  font-family: 'Outfit', sans-serif; font-size: 40px; font-weight: 800;
   color: #fff; letter-spacing: -1px; margin-bottom: 10px;
 }
-.logo-area p { color: rgba(255,255,255,.8); font-size: 17px; line-height: 1.6; max-width: 320px; }
-
-.features { margin-top: 50px; display: flex; flex-direction: column; gap: 16px; z-index: 1; }
-.feature {
-  display: flex; align-items: center; gap: 16px;
-  background: rgba(255,255,255,.12); border-radius: 12px;
-  padding: 16px 20px; backdrop-filter: blur(8px);
-  border: 1px solid rgba(255,255,255,.2);
+.logo-area p {
+  color: rgba(255,255,255,.82); font-size: 16px;
+  line-height: 1.65; max-width: 300px; margin: 0 auto;
 }
-.feature-icon { font-size: 24px; flex-shrink: 0; }
-.feature p { color: rgba(255,255,255,.9); font-size: 14px; line-height: 1.4; }
-.feature strong { display: block; color: #fff; font-size: 15px; margin-bottom: 2px; }
+.features {
+  margin-top: 44px; display: flex; flex-direction: column;
+  gap: 14px; z-index: 1; width: 100%; max-width: 360px;
+}
+.feature {
+  display: flex; align-items: center; gap: 14px;
+  background: rgba(255,255,255,.12); border-radius: 12px;
+  padding: 14px 18px; border: 1px solid rgba(255,255,255,.2);
+}
+.feature-icon { font-size: 22px; flex-shrink: 0; }
+.feature p { color: rgba(255,255,255,.9); font-size: 13px; line-height: 1.45; }
+.feature strong { display: block; color: #fff; font-size: 14px; margin-bottom: 2px; }
 
-/* ── Right panel ── */
+/* ── Painel direito (formulário) ── */
 .panel-right {
-  flex: 1; display: flex; align-items: center; justify-content: center;
-  padding: 40px;
+  flex: 1;
+  display: flex;
+  align-items: flex-start;   /* permite scroll quando cadastro é longo */
+  justify-content: center;
+  padding: 40px 24px;
+  overflow-y: auto;          /* scroll só neste painel se necessário */
 }
 .form-card {
-  width: 100%; max-width: 420px;
-  background: var(--white); border-radius: var(--radius);
-  box-shadow: var(--shadow); padding: 44px 40px;
+  width: 100%;
+  max-width: 420px;
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 40px 36px;
+  margin: auto 0;            /* centraliza verticalmente quando cabe */
   animation: slideIn .4s ease;
 }
-@keyframes slideIn { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }
+@keyframes slideIn {
+  from { opacity:0; transform:translateY(20px); }
+  to   { opacity:1; transform:translateY(0); }
+}
 
-.tabs { display: flex; background: var(--bg); border-radius: 10px; padding: 4px; margin-bottom: 32px; }
+/* ── Tabs ── */
+.tabs {
+  display: flex; background: var(--bg);
+  border-radius: 10px; padding: 4px; margin-bottom: 28px;
+}
 .tab {
   flex: 1; padding: 10px; text-align: center; border-radius: 8px;
   font-family: 'Outfit', sans-serif; font-weight: 600; font-size: 15px;
-  cursor: pointer; transition: all .25s; color: var(--muted); border: none; background: none;
+  cursor: pointer; transition: all .25s; color: var(--muted);
+  border: none; background: none;
 }
-.tab.active { background: var(--white); color: var(--p1); box-shadow: 0 2px 8px rgba(0,0,0,.1); }
+.tab.active {
+  background: var(--white); color: var(--p1);
+  box-shadow: 0 2px 8px rgba(0,0,0,.1);
+}
 
-.form-title { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 24px; color: var(--text); margin-bottom: 6px; }
-.form-sub { color: var(--muted); font-size: 14px; margin-bottom: 28px; }
+/* ── Textos do form ── */
+.form-title {
+  font-family: 'Outfit', sans-serif; font-weight: 700;
+  font-size: 22px; color: var(--text); margin-bottom: 5px;
+}
+.form-sub { color: var(--muted); font-size: 14px; margin-bottom: 24px; }
 
-.field { margin-bottom: 18px; }
-.field label { display: block; font-weight: 700; font-size: 13px; color: var(--text); margin-bottom: 6px; letter-spacing: .3px; }
+/* ── Campos ── */
+.field { margin-bottom: 16px; }
+.field label {
+  display: block; font-weight: 700; font-size: 13px;
+  color: var(--text); margin-bottom: 6px; letter-spacing: .3px;
+}
 .field input {
-  width: 100%; padding: 13px 16px; border: 2px solid var(--border);
+  width: 100%; padding: 12px 15px; border: 2px solid var(--border);
   border-radius: 10px; font-size: 15px; font-family: 'Lato', sans-serif;
-  color: var(--text); transition: border-color .2s, box-shadow .2s; outline: none;
-  background: #fafafa;
+  color: var(--text); outline: none; background: #fafafa;
+  transition: border-color .2s, box-shadow .2s;
 }
-.field input:focus { border-color: var(--p1); background: #fff; box-shadow: 0 0 0 4px rgba(79,70,229,.08); }
+.field input:focus {
+  border-color: var(--p1); background: #fff;
+  box-shadow: 0 0 0 4px rgba(79,70,229,.08);
+}
 
-.tipo-select { display: flex; gap: 10px; margin-bottom: 18px; }
+/* ── Tipo de perfil ── */
+.tipo-select { display: flex; gap: 10px; margin-bottom: 16px; }
 .tipo-btn {
-  flex: 1; padding: 12px; border: 2px solid var(--border); border-radius: 10px;
-  cursor: pointer; text-align: center; transition: all .2s; background: #fafafa;
-  font-family: 'Outfit', sans-serif; font-weight: 600; font-size: 14px; color: var(--muted);
+  flex: 1; padding: 11px 8px; border: 2px solid var(--border);
+  border-radius: 10px; cursor: pointer; text-align: center;
+  transition: all .2s; background: #fafafa;
+  font-family: 'Outfit', sans-serif; font-weight: 600;
+  font-size: 14px; color: var(--muted);
 }
 .tipo-btn.active { border-color: var(--p1); background: #eef2ff; color: var(--p1); }
 .tipo-btn .tipo-icon { font-size: 22px; display: block; margin-bottom: 4px; }
 
+/* ── Botão ── */
 .btn-primary {
   width: 100%; padding: 14px; background: var(--grad); color: #fff;
   border: none; border-radius: 10px; font-family: 'Outfit', sans-serif;
-  font-size: 16px; font-weight: 700; cursor: pointer; transition: all .2s;
-  margin-top: 8px; letter-spacing: .3px;
+  font-size: 16px; font-weight: 700; cursor: pointer;
+  transition: all .2s; margin-top: 8px; letter-spacing: .3px;
 }
 .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(79,70,229,.35); }
 .btn-primary:disabled { opacity: .7; cursor: not-allowed; transform: none; }
 
-.error-msg { background: #fef2f2; border: 1px solid #fca5a5; color: #b91c1c; border-radius: 8px; padding: 12px 16px; font-size: 14px; margin-bottom: 18px; display: none; }
-.success-msg { background: #f0fdf4; border: 1px solid #86efac; color: #166534; border-radius: 8px; padding: 12px 16px; font-size: 14px; margin-bottom: 18px; display: none; }
-
-.divider { text-align: center; color: var(--muted); font-size: 13px; margin: 20px 0; position: relative; }
-.divider::before, .divider::after { content:''; position:absolute; top:50%; width:42%; height:1px; background:var(--border); }
-.divider::before { left: 0; } .divider::after { right: 0; }
-
-/* hidden */
+/* ── Mensagens ── */
+.error-msg {
+  background: #fef2f2; border: 1px solid #fca5a5; color: #b91c1c;
+  border-radius: 8px; padding: 12px 16px; font-size: 14px;
+  margin-bottom: 16px; display: none;
+}
+.success-msg {
+  background: #f0fdf4; border: 1px solid #86efac; color: #166534;
+  border-radius: 8px; padding: 12px 16px; font-size: 14px;
+  margin-bottom: 16px; display: none;
+}
 .hidden { display: none !important; }
 
+/* ── Responsivo: tablet ── */
 @media (max-width: 860px) {
-  body { flex-direction: column; overflow: auto; }
-  .panel-left { width: 100%; padding: 40px 30px; min-height: 260px; }
+  .page-wrap { flex-direction: column; }
+  .panel-left {
+    width: 100%; padding: 36px 28px;
+    min-height: auto;
+  }
   .features { display: none; }
-  .panel-right { padding: 20px; }
-  .form-card { padding: 30px 24px; }
+  .panel-right {
+    padding: 24px 16px 40px;
+    align-items: flex-start;
+    overflow-y: visible;
+  }
+  .form-card { padding: 28px 22px; margin: 0 auto; }
+}
+
+/* ── Responsivo: celular pequeno ── */
+@media (max-width: 400px) {
+  .logo-area h1 { font-size: 30px; }
+  .logo-icon { width: 70px; height: 70px; font-size: 34px; }
+  .form-card { padding: 22px 16px; }
+  .tipo-btn { font-size: 13px; padding: 10px 6px; }
 }
 </style>
 </head>
 <body>
 
+<div class="page-wrap">
 <div class="panel-left">
   <div class="logo-area">
     <div class="logo-icon">📚</div>
     <h1>EduAVA</h1>
-    <p>Ambiente Virtual de Aprendizagem simples e poderoso para professores e estudantes.</p>
+    <p>Ambiente Virtual de Aprendizagem simples, bonito e poderoso para professores e estudantes.</p>
   </div>
   <div class="features">
     <div class="feature">
       <span class="feature-icon">✏️</span>
-      <p><strong>Construtor de Aulas</strong>Crie sequências didáticas.</p>
+      <p><strong>Construtor de Aulas</strong>Crie sequências didáticas ricas com textos, vídeos, quizzes e muito mais.</p>
     </div>
     <div class="feature">
       <span class="feature-icon">👩‍🎓</span>
@@ -152,7 +225,7 @@ body {
     </div>
     <div class="feature">
       <span class="feature-icon">💾</span>
-      <p><strong>Sem servidor próprio</strong>Tudo salvo no Google Sheets e Drive</p>
+      <p><strong>Sem servidor próprio</strong>Tudo salvo no Google Sheets e Drive — gratuito e seguro.</p>
     </div>
   </div>
 </div>
@@ -167,9 +240,9 @@ body {
     <!-- LOGIN -->
     <div id="formEntrar">
       <h2 class="form-title">Bem-vindo de volta 👋</h2>
-      <p class="form-sub">Entre com seu usuário e senha.</p>
+      <p class="form-sub">Entre com seu e-mail e senha.</p>
       <div id="loginError" class="error-msg"></div>
-      <div class="field"><label>Usuário</label><input type="email" id="loginEmail" placeholder="Usuário aqui"></div>
+      <div class="field"><label>E-mail</label><input type="email" id="loginEmail" placeholder="seu@email.com"></div>
       <div class="field"><label>Senha</label><input type="password" id="loginSenha" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
       <button class="btn-primary" onclick="doLogin()" id="btnLogin">Entrar</button>
     </div>
@@ -189,8 +262,8 @@ body {
         </div>
       </div>
       <div class="field"><label>Nome completo</label><input type="text" id="cadNome" placeholder="Seu nome"></div>
-      <div class="field"><label>Usuário</label><input type="email" id="cadEmail" placeholder="Usuário aqui"></div>
-      <div class="field"><label>Senha</label><input type="password" id="cadSenha" placeholder="Mínimo 5 caracteres e 1 letra"></div>
+      <div class="field"><label>E-mail</label><input type="email" id="cadEmail" placeholder="seu@email.com"></div>
+      <div class="field"><label>Senha</label><input type="password" id="cadSenha" placeholder="Mínimo 6 caracteres"></div>
       <div class="field" id="codigoProfField">
         <label>Código de Professor 🔑</label>
         <input type="text" id="cadCodigo" placeholder="Informe o código fornecido pela escola">
@@ -198,10 +271,10 @@ body {
       <button class="btn-primary" onclick="doCadastro()" id="btnCad">Criar conta</button>
     </div>
   </div>
-</div>
+</div><!-- /page-wrap -->
 
 <script>
-const API = 'https://script.google.com/macros/s/AKfycbyrGT7gJjihZ6m6P3N0OwxQD4SEdWaORb3OVjccC7Po0FcQpTQUnzhgR9pKTL40-c_t/exec'; // ← Substitua pela URL do seu Web App
+const API = 'YOUR_APPS_SCRIPT_URL_HERE'; // ← Substitua pela URL do seu Web App
 
 let tipoSelecionado = 'professor';
 
