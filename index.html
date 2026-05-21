@@ -3,278 +3,387 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>AVA · Acesso</title>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+<title>EduAVA · Acesso</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root {
-  --p1: #4f46e5; --p2: #7c3aed;
-  --grad: linear-gradient(135deg, var(--p1), var(--p2));
-  --dark: #1e1b4b; --text: #1f2937; --muted: #6b7280;
-  --border: #e5e7eb; --bg: #f5f3ff; --white: #ffffff;
-  --radius: 16px; --shadow: 0 20px 60px rgba(79,70,229,.18);
+  --purple-900: #26215C;
+  --purple-800: #3C3489;
+  --purple-600: #534AB7;
+  --purple-400: #7F77DD;
+  --purple-200: #AFA9EC;
+  --purple-100: #CECBF6;
+  --purple-50:  #EEEDFE;
+  --teal-800:  #085041;
+  --teal-600:  #0F6E56;
+  --teal-400:  #1D9E75;
+  --teal-100:  #9FE1CB;
+  --teal-50:   #E1F5EE;
+  --amber-50:  #FAEEDA;
+  --amber-800: #854F0B;
+  --text:   #1a1a2e;
+  --muted:  #6b6b8a;
+  --border: rgba(0,0,0,.09);
+  --bg:     #f4f3fb;
+  --white:  #ffffff;
+  --radius: 14px;
 }
-* { margin:0; padding:0; box-sizing:border-box; }
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
 
 html, body {
   height: 100%;
-  font-family: 'Lato', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   background: var(--bg);
   color: var(--text);
 }
 
-/* ── Layout principal: dois painéis lado a lado no desktop ── */
-.page-wrap {
+/* ── Layout ── */
+.page {
   min-height: 100vh;
   display: flex;
-  flex-direction: row;
 }
 
-/* ── Painel esquerdo (decorativo) ── */
-.panel-left {
-  width: 46%;
+/* ── Painel esquerdo ── */
+.left {
+  width: 44%;
   flex-shrink: 0;
-  background: var(--grad);
+  background: var(--purple-900);
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 60px 48px;
+  justify-content: space-between;
+  padding: 52px 48px;
   position: relative;
   overflow: hidden;
 }
-.panel-left::before {
-  content: ''; position: absolute; width: 500px; height: 500px;
-  border-radius: 50%; background: rgba(255,255,255,.06);
-  top: -120px; right: -120px; pointer-events: none;
+/* decoração geométrica sutil */
+.left::before {
+  content: '';
+  position: absolute;
+  width: 340px; height: 340px;
+  border-radius: 50%;
+  border: 1px solid rgba(175,169,236,.12);
+  top: -80px; right: -80px;
+  pointer-events: none;
 }
-.panel-left::after {
-  content: ''; position: absolute; width: 300px; height: 300px;
-  border-radius: 50%; background: rgba(255,255,255,.06);
-  bottom: -80px; left: -60px; pointer-events: none;
+.left::after {
+  content: '';
+  position: absolute;
+  width: 200px; height: 200px;
+  border-radius: 50%;
+  border: 1px solid rgba(175,169,236,.08);
+  bottom: 60px; left: -60px;
+  pointer-events: none;
 }
-.logo-area { text-align: center; z-index: 1; width: 100%; }
+.left-deco {
+  position: absolute;
+  width: 500px; height: 500px;
+  border-radius: 50%;
+  border: 1px solid rgba(175,169,236,.06);
+  top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  pointer-events: none;
+}
+
+/* Logo */
+.logo-area { z-index: 1; }
 .logo-icon {
-  width: 88px; height: 88px; background: rgba(255,255,255,.18);
-  border-radius: 28px; display: flex; align-items: center; justify-content: center;
-  font-size: 44px; margin: 0 auto 24px;
-  border: 2px solid rgba(255,255,255,.3);
-  box-shadow: 0 8px 32px rgba(0,0,0,.15);
+  width: 54px; height: 54px;
+  background: rgba(255,255,255,.1);
+  border: 1px solid rgba(255,255,255,.18);
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px;
+  margin-bottom: 20px;
 }
 .logo-area h1 {
-  font-family: 'Outfit', sans-serif; font-size: 40px; font-weight: 800;
-  color: #fff; letter-spacing: -1px; margin-bottom: 10px;
+  font-family: 'Sora', sans-serif;
+  font-size: 36px; font-weight: 700;
+  color: #fff; letter-spacing: -1px;
+  line-height: 1.1;
+  margin-bottom: 12px;
 }
+.logo-area h1 span { color: var(--purple-200); }
 .logo-area p {
-  color: rgba(255,255,255,.82); font-size: 16px;
-  line-height: 1.65; max-width: 300px; margin: 0 auto;
+  font-size: 15px; color: rgba(255,255,255,.55);
+  line-height: 1.65; max-width: 300px;
 }
-.features {
-  margin-top: 44px; display: flex; flex-direction: column;
-  gap: 14px; z-index: 1; width: 100%; max-width: 360px;
-}
-.feature {
-  display: flex; align-items: center; gap: 14px;
-  background: rgba(255,255,255,.12); border-radius: 12px;
-  padding: 14px 18px; border: 1px solid rgba(255,255,255,.2);
-}
-.feature-icon { font-size: 22px; flex-shrink: 0; }
-.feature p { color: rgba(255,255,255,.9); font-size: 13px; line-height: 1.45; }
-.feature strong { display: block; color: #fff; font-size: 14px; margin-bottom: 2px; }
 
-/* ── Painel direito (formulário) ── */
-.panel-right {
+/* Features */
+.features { display: flex; flex-direction: column; gap: 12px; z-index: 1; }
+.feat {
+  display: flex; align-items: flex-start; gap: 14px;
+  padding: 14px 16px;
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 11px;
+  transition: background .2s;
+}
+.feat:hover { background: rgba(255,255,255,.08); }
+.feat-icon {
+  width: 36px; height: 36px; flex-shrink: 0;
+  background: rgba(175,169,236,.15);
+  border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+}
+.feat-text strong {
+  display: block; font-size: 13px; font-weight: 600;
+  color: #fff; margin-bottom: 3px;
+}
+.feat-text span { font-size: 12px; color: rgba(255,255,255,.5); line-height: 1.4; }
+
+/* ── Painel direito ── */
+.right {
   flex: 1;
   display: flex;
-  align-items: flex-start;   /* permite scroll quando cadastro é longo */
+  align-items: center;
   justify-content: center;
   padding: 40px 24px;
-  overflow-y: auto;          /* scroll só neste painel se necessário */
-}
-.form-card {
-  width: 100%;
-  max-width: 420px;
-  background: var(--white);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  padding: 40px 36px;
-  margin: auto 0;            /* centraliza verticalmente quando cabe */
-  animation: slideIn .4s ease;
-}
-@keyframes slideIn {
-  from { opacity:0; transform:translateY(20px); }
-  to   { opacity:1; transform:translateY(0); }
+  overflow-y: auto;
 }
 
-/* ── Tabs ── */
+/* Card do formulário */
+.form-card {
+  width: 100%; max-width: 400px;
+  background: var(--white);
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  padding: 40px 36px;
+  box-shadow: 0 8px 40px rgba(60,52,137,.08);
+  animation: cardIn .4s cubic-bezier(.22,1,.36,1);
+}
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Tabs */
 .tabs {
-  display: flex; background: var(--bg);
-  border-radius: 10px; padding: 4px; margin-bottom: 28px;
+  display: flex;
+  background: var(--bg);
+  border-radius: 10px;
+  padding: 4px;
+  margin-bottom: 28px;
+  border: 1px solid var(--border);
 }
 .tab {
-  flex: 1; padding: 10px; text-align: center; border-radius: 8px;
-  font-family: 'Outfit', sans-serif; font-weight: 600; font-size: 15px;
-  cursor: pointer; transition: all .25s; color: var(--muted);
+  flex: 1; padding: 9px 12px;
+  text-align: center;
+  border-radius: 7px;
+  font-family: 'Sora', sans-serif;
+  font-weight: 600; font-size: 14px;
+  cursor: pointer;
+  transition: all .2s;
+  color: var(--muted);
   border: none; background: none;
 }
 .tab.active {
-  background: var(--white); color: var(--p1);
-  box-shadow: 0 2px 8px rgba(0,0,0,.1);
+  background: var(--white);
+  color: var(--purple-800);
+  box-shadow: 0 1px 6px rgba(0,0,0,.08);
 }
 
-/* ── Textos do form ── */
+/* Títulos */
 .form-title {
-  font-family: 'Outfit', sans-serif; font-weight: 700;
-  font-size: 22px; color: var(--text); margin-bottom: 5px;
+  font-family: 'Sora', sans-serif;
+  font-size: 20px; font-weight: 700;
+  color: var(--text); margin-bottom: 4px;
 }
-.form-sub { color: var(--muted); font-size: 14px; margin-bottom: 24px; }
+.form-sub { font-size: 13px; color: var(--muted); margin-bottom: 24px; line-height: 1.5; }
 
-/* ── Campos ── */
-.field { margin-bottom: 16px; }
+/* Campo */
+.field { margin-bottom: 14px; }
 .field label {
-  display: block; font-weight: 700; font-size: 13px;
-  color: var(--text); margin-bottom: 6px; letter-spacing: .3px;
+  display: block; font-size: 12px; font-weight: 600;
+  color: var(--muted); margin-bottom: 6px;
+  letter-spacing: .3px; text-transform: uppercase;
 }
 .field input {
-  width: 100%; padding: 12px 15px; border: 2px solid var(--border);
-  border-radius: 10px; font-size: 15px; font-family: 'Lato', sans-serif;
-  color: var(--text); outline: none; background: #fafafa;
+  width: 100%; padding: 11px 14px;
+  border: 1.5px solid #e8e6f5;
+  border-radius: 10px;
+  font-size: 14px; font-family: 'DM Sans', sans-serif;
+  color: var(--text); outline: none;
+  background: #faf9fe;
   transition: border-color .2s, box-shadow .2s;
 }
 .field input:focus {
-  border-color: var(--p1); background: #fff;
-  box-shadow: 0 0 0 4px rgba(79,70,229,.08);
+  border-color: var(--purple-400);
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(127,119,221,.12);
 }
 
-/* ── Tipo de perfil ── */
-.tipo-select { display: flex; gap: 10px; margin-bottom: 16px; }
+/* Tipo de perfil */
+.tipo-row { display: flex; gap: 10px; margin-bottom: 14px; }
 .tipo-btn {
-  flex: 1; padding: 11px 8px; border: 2px solid var(--border);
-  border-radius: 10px; cursor: pointer; text-align: center;
-  transition: all .2s; background: #fafafa;
-  font-family: 'Outfit', sans-serif; font-weight: 600;
-  font-size: 14px; color: var(--muted);
+  flex: 1; padding: 11px 8px;
+  border: 1.5px solid #e8e6f5;
+  border-radius: 10px;
+  cursor: pointer; text-align: center;
+  background: #faf9fe;
+  transition: all .2s;
 }
-.tipo-btn.active { border-color: var(--p1); background: #eef2ff; color: var(--p1); }
-.tipo-btn .tipo-icon { font-size: 22px; display: block; margin-bottom: 4px; }
+.tipo-btn .ti { font-size: 22px; display: block; margin-bottom: 5px; color: var(--muted); }
+.tipo-btn span { font-size: 13px; font-weight: 600; color: var(--muted); }
+.tipo-btn.active {
+  border-color: var(--purple-400);
+  background: var(--purple-50);
+}
+.tipo-btn.active .ti { color: var(--purple-600); }
+.tipo-btn.active span { color: var(--purple-800); }
 
-/* ── Botão ── */
-.btn-primary {
-  width: 100%; padding: 14px; background: var(--grad); color: #fff;
-  border: none; border-radius: 10px; font-family: 'Outfit', sans-serif;
-  font-size: 16px; font-weight: 700; cursor: pointer;
-  transition: all .2s; margin-top: 8px; letter-spacing: .3px;
+/* Botão principal */
+.btn-main {
+  width: 100%; padding: 13px;
+  background: var(--purple-800);
+  color: #fff;
+  border: none; border-radius: 10px;
+  font-family: 'Sora', sans-serif;
+  font-size: 15px; font-weight: 600;
+  cursor: pointer;
+  transition: all .2s;
+  margin-top: 6px;
+  letter-spacing: .2px;
 }
-.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(79,70,229,.35); }
-.btn-primary:disabled { opacity: .7; cursor: not-allowed; transform: none; }
+.btn-main:hover {
+  background: var(--purple-900);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(60,52,137,.25);
+}
+.btn-main:disabled { opacity: .65; cursor: not-allowed; transform: none; }
 
-/* ── Mensagens ── */
-.error-msg {
-  background: #fef2f2; border: 1px solid #fca5a5; color: #b91c1c;
-  border-radius: 8px; padding: 12px 16px; font-size: 14px;
-  margin-bottom: 16px; display: none;
+/* Mensagens */
+.msg-error {
+  background: #fff5f5; border: 1px solid #fca5a5;
+  color: #b91c1c; border-radius: 8px;
+  padding: 10px 14px; font-size: 13px;
+  margin-bottom: 14px; display: none;
 }
-.success-msg {
-  background: #f0fdf4; border: 1px solid #86efac; color: #166534;
-  border-radius: 8px; padding: 12px 16px; font-size: 14px;
-  margin-bottom: 16px; display: none;
+.msg-success {
+  background: #f0fdf4; border: 1px solid #86efac;
+  color: #166534; border-radius: 8px;
+  padding: 10px 14px; font-size: 13px;
+  margin-bottom: 14px; display: none;
 }
 .hidden { display: none !important; }
 
-/* ── Responsivo: tablet ── */
-@media (max-width: 860px) {
-  .page-wrap { flex-direction: column; }
-  .panel-left {
-    width: 100%; padding: 36px 28px;
-    min-height: auto;
-  }
+/* ── Responsivo ── */
+@media (max-width: 820px) {
+  .page { flex-direction: column; }
+  .left { width: 100%; padding: 32px 24px; min-height: auto; }
   .features { display: none; }
-  .panel-right {
-    padding: 24px 16px 40px;
-    align-items: flex-start;
-    overflow-y: visible;
-  }
-  .form-card { padding: 28px 22px; margin: 0 auto; }
+  .right { padding: 24px 16px 40px; }
+  .form-card { padding: 28px 22px; }
 }
-
-/* ── Responsivo: celular pequeno ── */
 @media (max-width: 400px) {
-  .logo-area h1 { font-size: 30px; }
-  .logo-icon { width: 70px; height: 70px; font-size: 34px; }
+  .logo-area h1 { font-size: 28px; }
   .form-card { padding: 22px 16px; }
-  .tipo-btn { font-size: 13px; padding: 10px 6px; }
+  .tipo-btn { font-size: 12px; }
 }
 </style>
 </head>
 <body>
 
-<div class="page-wrap">
-<div class="panel-left">
-  <div class="logo-area">
-    <div class="logo-icon">📚</div>
-    <h1>EduAVA</h1>
-    <p>Ambiente Virtual de Aprendizagem simples, bonito e poderoso para professores e estudantes.</p>
+<div class="page">
+
+  <!-- Painel esquerdo -->
+  <div class="left">
+    <div class="left-deco"></div>
+    <div class="logo-area">
+      <div class="logo-icon">📚</div>
+      <h1>Edu<span>AVA</span></h1>
+      <p>Ambiente Virtual de Aprendizagem simples e poderoso para professores e estudantes.</p>
+    </div>
+    <div class="features">
+      <div class="feat">
+        <div class="feat-icon">✏️</div>
+        <div class="feat-text">
+          <strong>Construtor de Aulas</strong>
+          <span>Crie sequências ricas com textos, vídeos, quizzes e atividades.</span>
+        </div>
+      </div>
+      <div class="feat">
+        <div class="feat-icon">👥</div>
+        <div class="feat-text">
+          <strong>Turmas Organizadas</strong>
+          <span>Gerencie matrículas e acompanhe o progresso dos alunos.</span>
+        </div>
+      </div>
+      <div class="feat">
+        <div class="feat-icon">☁️</div>
+        <div class="feat-text">
+          <strong>Sem servidor próprio</strong>
+          <span>Tudo salvo via Baserow e Google Apps Script — gratuito.</span>
+        </div>
+      </div>
+    </div>
   </div>
-  <div class="features">
-    <div class="feature">
-      <span class="feature-icon">✏️</span>
-      <p><strong>Construtor de Aulas</strong>Crie sequências didáticas ricas com textos, vídeos, quizzes e muito mais.</p>
-    </div>
-    <div class="feature">
-      <span class="feature-icon">👩‍🎓</span>
-      <p><strong>Turmas Organizadas</strong>Gerencie turmas, matrículas e acompanhe o progresso dos alunos.</p>
-    </div>
-    <div class="feature">
-      <span class="feature-icon">💾</span>
-      <p><strong>Sem servidor próprio</strong>Tudo salvo no Google Sheets e Drive — gratuito e seguro.</p>
+
+  <!-- Painel direito -->
+  <div class="right">
+    <div class="form-card">
+      <div class="tabs">
+        <button class="tab active" id="tabEntrar" onclick="showTab('entrar')">Entrar</button>
+        <button class="tab" id="tabCadastro" onclick="showTab('cadastro')">Cadastrar</button>
+      </div>
+
+      <!-- LOGIN -->
+      <div id="formEntrar">
+        <p class="form-title">Bem-vindo de volta 👋</p>
+        <p class="form-sub">Entre com seu e-mail e senha para continuar.</p>
+        <div class="msg-error" id="loginError"></div>
+        <div class="field">
+          <label>Usuário</label>
+          <input type="email" id="loginEmail" placeholder="seu ususário aqui">
+        </div>
+        <div class="field">
+          <label>Senha</label>
+          <input type="password" id="loginSenha" placeholder="••••••••"
+            onkeydown="if(event.key==='Enter')doLogin()">
+        </div>
+        <button class="btn-main" onclick="doLogin()" id="btnLogin">Entrar</button>
+      </div>
+
+      <!-- CADASTRO -->
+      <div id="formCadastro" class="hidden">
+        <p class="form-title">Criar conta 🚀</p>
+        <p class="form-sub">Escolha seu perfil e preencha os dados abaixo.</p>
+        <div class="msg-error" id="cadError"></div>
+        <div class="msg-success" id="cadSuccess"></div>
+        <div class="tipo-row">
+          <div class="tipo-btn active" id="tipoProfBtn" onclick="setTipo('professor')">
+            <span class="ti">👩‍🏫</span>
+            <span>Professor</span>
+          </div>
+          <div class="tipo-btn" id="tipoAlunoBtn" onclick="setTipo('aluno')">
+            <span class="ti">👨‍🎓</span>
+            <span>Aluno</span>
+          </div>
+        </div>
+        <div class="field">
+          <label>Nome completo</label>
+          <input type="text" id="cadNome" placeholder="Seu nome">
+        </div>
+        <div class="field">
+          <label>Usuário</label>
+          <input type="email" id="cadEmail" placeholder="seu usuário aqui">
+        </div>
+        <div class="field">
+          <label>Senha</label>
+          <input type="password" id="cadSenha" placeholder="Mínimo 6 caracteres">
+        </div>
+        <div class="field" id="codigoProfField">
+          <label>Código de Professor 🔑</label>
+          <input type="text" id="cadCodigo" placeholder="Fornecido pela escola">
+        </div>
+        <button class="btn-main" onclick="doCadastro()" id="btnCad">Criar conta</button>
+      </div>
     </div>
   </div>
 </div>
 
-<div class="panel-right">
-  <div class="form-card">
-    <div class="tabs">
-      <button class="tab active" id="tabEntrar" onclick="showTab('entrar')">Entrar</button>
-      <button class="tab" id="tabCadastro" onclick="showTab('cadastro')">Cadastrar</button>
-    </div>
-
-    <!-- LOGIN -->
-    <div id="formEntrar">
-      <h2 class="form-title">Bem-vindo de volta 👋</h2>
-      <p class="form-sub">Entre com seu e-mail e senha.</p>
-      <div id="loginError" class="error-msg"></div>
-      <div class="field"><label>E-mail</label><input type="email" id="loginEmail" placeholder="seu@email.com"></div>
-      <div class="field"><label>Senha</label><input type="password" id="loginSenha" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
-      <button class="btn-primary" onclick="doLogin()" id="btnLogin">Entrar</button>
-    </div>
-
-    <!-- CADASTRO -->
-    <div id="formCadastro" class="hidden">
-      <h2 class="form-title">Criar conta 🚀</h2>
-      <p class="form-sub">Escolha seu perfil e preencha os dados.</p>
-      <div id="cadError" class="error-msg"></div>
-      <div id="cadSuccess" class="success-msg"></div>
-      <div class="tipo-select">
-        <div class="tipo-btn active" id="tipoProfBtn" onclick="setTipo('professor')">
-          <span class="tipo-icon">👩‍🏫</span>Professor
-        </div>
-        <div class="tipo-btn" id="tipoAlunoBtn" onclick="setTipo('aluno')">
-          <span class="tipo-icon">👨‍🎓</span>Aluno
-        </div>
-      </div>
-      <div class="field"><label>Nome completo</label><input type="text" id="cadNome" placeholder="Seu nome"></div>
-      <div class="field"><label>E-mail</label><input type="email" id="cadEmail" placeholder="seu@email.com"></div>
-      <div class="field"><label>Senha</label><input type="password" id="cadSenha" placeholder="Mínimo 6 caracteres"></div>
-      <div class="field" id="codigoProfField">
-        <label>Código de Professor 🔑</label>
-        <input type="text" id="cadCodigo" placeholder="Informe o código fornecido pela escola">
-      </div>
-      <button class="btn-primary" onclick="doCadastro()" id="btnCad">Criar conta</button>
-    </div>
-  </div>
-</div><!-- /page-wrap -->
-
 <script>
-const API = 'https://script.google.com/macros/s/AKfycbyrGT7gJjihZ6m6P3N0OwxQD4SEdWaORb3OVjccC7Po0FcQpTQUnzhgR9pKTL40-c_t/exec'; // ← Substitua pela URL do seu Web App
+const API = 'https://script.google.com/macros/s/AKfycbyrGT7gJjihZ6m6P3N0OwxQD4SEdWaORb3OVjccC7Po0FcQpTQUnzhgR9pKTL40-c_t/exec';
 
 let tipoSelecionado = 'professor';
 
@@ -293,30 +402,27 @@ function setTipo(tipo) {
 }
 
 async function post(payload) {
-  const r = await fetch(API, { method:'POST', headers:{'Content-Type':'text/plain'}, body: JSON.stringify(payload) });
+  const r = await fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(payload) });
   return r.json();
 }
 
-function showErr(id, msg) {
-  const el = document.getElementById(id);
-  el.textContent = msg; el.style.display = 'block';
-}
+function showErr(id, msg) { const el = document.getElementById(id); el.textContent = msg; el.style.display = 'block'; }
 function hideMsg(id) { document.getElementById(id).style.display = 'none'; }
 
 async function doLogin() {
   const email = document.getElementById('loginEmail').value.trim();
   const senha = document.getElementById('loginSenha').value;
   hideMsg('loginError');
-  if (!email || !senha) { showErr('loginError','Preencha todos os campos.'); return; }
+  if (!email || !senha) { showErr('loginError', 'Preencha todos os campos.'); return; }
   const btn = document.getElementById('btnLogin');
   btn.disabled = true; btn.textContent = 'Entrando...';
   try {
-    const data = await post({ action:'login', email, senha });
+    const data = await post({ action: 'login', email, senha });
     if (data.error) { showErr('loginError', data.error); return; }
     localStorage.setItem('ava_user', JSON.stringify({ email: data.email, nome: data.nome, tipo: data.tipo }));
     localStorage.setItem('ava_api', API);
     window.location.href = data.tipo === 'professor' ? 'professor.html' : 'aluno.html';
-  } catch(e) { showErr('loginError','Erro de conexão. Verifique a URL da API.'); }
+  } catch (e) { showErr('loginError', 'Erro de conexão. Verifique a URL da API.'); }
   finally { btn.disabled = false; btn.textContent = 'Entrar'; }
 }
 
@@ -326,21 +432,20 @@ async function doCadastro() {
   const senha  = document.getElementById('cadSenha').value;
   const codigo = document.getElementById('cadCodigo').value.trim();
   hideMsg('cadError'); hideMsg('cadSuccess');
-  if (!nome || !email || !senha) { showErr('cadError','Preencha todos os campos.'); return; }
-  if (senha.length < 6)          { showErr('cadError','Senha deve ter pelo menos 6 caracteres.'); return; }
+  if (!nome || !email || !senha) { showErr('cadError', 'Preencha todos os campos.'); return; }
+  if (senha.length < 6) { showErr('cadError', 'Senha deve ter pelo menos 6 caracteres.'); return; }
   const btn = document.getElementById('btnCad');
   btn.disabled = true; btn.textContent = 'Criando conta...';
   try {
-    const data = await post({ action:'register', nome, email, senha, tipo: tipoSelecionado, codigo });
+    const data = await post({ action: 'register', nome, email, senha, tipo: tipoSelecionado, codigo });
     if (data.error) { showErr('cadError', data.error); return; }
     document.getElementById('cadSuccess').textContent = '✅ Conta criada! Faça login agora.';
     document.getElementById('cadSuccess').style.display = 'block';
     setTimeout(() => showTab('entrar'), 1800);
-  } catch(e) { showErr('cadError','Erro de conexão.'); }
+  } catch (e) { showErr('cadError', 'Erro de conexão.'); }
   finally { btn.disabled = false; btn.textContent = 'Criar conta'; }
 }
 
-// Redirecionar se já logado
 window.addEventListener('load', () => {
   const user = JSON.parse(localStorage.getItem('ava_user') || 'null');
   if (user) window.location.href = user.tipo === 'professor' ? 'professor.html' : 'aluno.html';
