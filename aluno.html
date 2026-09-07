@@ -686,7 +686,7 @@ document.querySelectorAll('.overlay').forEach(o=>{
   .profia-header-title{ display:flex; align-items:center; gap:10px; }
   .profia-avatar{
     width:34px; height:34px; border-radius:50%; background:rgba(255,255,255,.15);
-    display:flex; align-items:center; justify-content:center; font-size:27px; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center; font-size:17px; flex-shrink:0;
   }
   .profia-name{ font-weight:700; font-size:13.5px; }
   .profia-status{ font-size:11px; color:rgba(255,255,255,.65); margin-top:1px; }
@@ -738,6 +738,19 @@ document.querySelectorAll('.overlay').forEach(o=>{
     color:var(--profia-p1); font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0;
   }
   .profia-ibtn.active{ background:#e8eef8; }
+  .profia-ibtn.listening{
+    background:var(--red); color:#fff;
+    animation:profiaPulse 1.1s infinite;
+  }
+  @keyframes profiaPulse{
+    0%{ box-shadow:0 0 0 0 rgba(179,38,30,.55); }
+    70%{ box-shadow:0 0 0 10px rgba(179,38,30,0); }
+    100%{ box-shadow:0 0 0 0 rgba(179,38,30,0); }
+  }
+  .profia-voice-hint{
+    text-align:center; font-size:11px; color:var(--profia-muted);
+    padding:4px 10px 0;
+  }
   #profiaInput{
     flex:1; border:1.5px solid var(--profia-border); border-radius:18px; padding:8px 12px;
     font-family:inherit; font-size:13px; resize:none; outline:none; max-height:80px; min-height:34px;
@@ -766,7 +779,10 @@ document.querySelectorAll('.overlay').forEach(o=>{
         <div class="profia-status" id="profiaStatus">Vamos pensar juntos?</div>
       </div>
     </div>
-    <button class="profia-close" onclick="toggleProfIA()">✕</button>
+    <div style="display:flex;gap:6px;align-items:center;">
+      <button class="profia-close" id="profiaVoiceToggle" onclick="profiaToggleVoice()" title="Ativar ou desativar a voz do Prof. TuTu">🔊</button>
+      <button class="profia-close" onclick="toggleProfIA()">✕</button>
+    </div>
   </div>
 
   <div class="profia-quickbar">
@@ -777,8 +793,10 @@ document.querySelectorAll('.overlay').forEach(o=>{
 
   <div class="profia-msgs" id="profiaMsgs"></div>
 
+  <div class="profia-voice-hint" id="profiaVoiceHint">🎤 Toque no microfone e fale sua pergunta em voz alta</div>
   <div class="profia-inputrow">
     <input type="file" id="profiaFileInput" accept="image/*" capture="environment" style="display:none">
+    <button class="profia-ibtn" id="profiaMicBtn" title="Perguntar por voz" onclick="profiaToggleListening()">🎤</button>
     <button class="profia-ibtn" id="profiaFileBtn" title="Enviar foto do exercício" onclick="document.getElementById('profiaFileInput').click()">📷</button>
     <textarea id="profiaInput" placeholder="Conte o que você já tentou…" rows="1"
       onkeydown="profiaKey(event)" oninput="profiaResize(this)"></textarea>
@@ -813,11 +831,17 @@ function toggleProfIA() {
   panel.classList.toggle('open');
   if (panel.classList.contains('open')) {
     loadMermaidIfNeeded();
+    profiaUpdateVoiceBtn();
     if (!profiaOpened) {
       profiaOpened = true;
-      profiaAddMsg('ai', 'Oi! Eu sou o Prof. TuTu. 🥸<br>Me conta: o que você está tentando resolver e o que você já tentou até agora?');
+      const saudacao = 'Oi! Eu sou o Prof. TuTu. 🥸<br>Me conta: o que você está tentando resolver e o que você já tentou até agora?';
+      profiaAddMsg('ai', saudacao);
+      profiaSpeak(saudacao);
     }
     document.getElementById('profiaInput').focus();
+  } else if (window.speechSynthesis) {
+    window.speechSynthesis.cancel();
+    if (profiaListening && profiaRecognition) profiaRecognition.stop();
   }
 }
 
@@ -901,12 +925,16 @@ async function profiaSend() {
     if (data.ok) {
       profiaAddMsg('ai', profiaFmt(data.reply || ''), data.card || '');
       profiaHistory.push({ role: 'assistant', content: data.reply || '' });
+      profiaSpeak(data.reply || '');
     } else {
-      profiaAddMsg('ai', '⚠️ ' + profiaEsc(data.error || 'Não consegui responder agora. Tenta de novo?'));
+      const errMsg = data.error || 'Não consegui responder agora. Tenta de novo?';
+      profiaAddMsg('ai', '⚠️ ' + profiaEsc(errMsg));
+      profiaSpeak(errMsg);
     }
   } catch (err) {
     profiaRemoveTyping(typingId);
     profiaAddMsg('ai', '⚠️ Erro de conexão. Tenta de novo em instantes?');
+    profiaSpeak('Erro de conexão. Tenta de novo em instantes?');
   } finally {
     profiaBusy = false; document.getElementById('profiaSendBtn').disabled = false;
   }
@@ -954,6 +982,140 @@ function profiaFmt(t) {
 }
 function profiaEsc(s) {
   return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ════════════════════════════════════════════════════════════
+// ACESSIBILIDADE POR VOZ (gratuito, nativo do navegador)
+// - Fala → texto: Web Speech API (SpeechRecognition)
+// - Texto → fala: Web Speech API (SpeechSynthesis)
+// Funciona bem no Chrome/Edge/Android. Em navegadores sem
+// suporte (ex: Firefox desktop, alguns Safari antigos), os
+// botões avisam a criança/professor em vez de travar a página.
+// ════════════════════════════════════════════════════════════
+
+let profiaVoiceEnabled = localStorage.getItem('profia_voice_enabled');
+profiaVoiceEnabled = profiaVoiceEnabled === null ? true : profiaVoiceEnabled === 'true';
+let profiaRecognition = null;
+let profiaListening = false;
+let profiaVoicesCache = [];
+
+if ('speechSynthesis' in window) {
+  profiaVoicesCache = window.speechSynthesis.getVoices();
+  window.speechSynthesis.onvoiceschanged = () => {
+    profiaVoicesCache = window.speechSynthesis.getVoices();
+  };
+}
+
+function profiaGetPtVoice() {
+  if (!profiaVoicesCache.length) profiaVoicesCache = window.speechSynthesis.getVoices();
+  if (!profiaVoicesCache.length) return null;
+  return profiaVoicesCache.find(v => /pt[-_]br/i.test(v.lang)) ||
+         profiaVoicesCache.find(v => /^pt/i.test(v.lang)) || null;
+}
+
+function profiaDefaultStatus() {
+  return profiaContexto.aula_titulo ? ('Sobre: ' + profiaContexto.aula_titulo) : 'Vamos pensar juntos?';
+}
+
+function profiaUpdateVoiceBtn() {
+  const btn = document.getElementById('profiaVoiceToggle');
+  if (!btn) return;
+  const supported = 'speechSynthesis' in window;
+  btn.textContent = (profiaVoiceEnabled && supported) ? '🔊' : '🔇';
+  btn.title = !supported
+    ? 'Seu navegador não consegue ler as respostas em voz alta'
+    : (profiaVoiceEnabled ? 'Voz ativada — toque para desativar' : 'Voz desativada — toque para ativar');
+}
+
+function profiaToggleVoice() {
+  if (window.speechSynthesis && window.speechSynthesis.speaking) window.speechSynthesis.cancel();
+  profiaVoiceEnabled = !profiaVoiceEnabled;
+  localStorage.setItem('profia_voice_enabled', profiaVoiceEnabled);
+  profiaUpdateVoiceBtn();
+  toast(profiaVoiceEnabled ? '🔊 O Prof. TuTu vai falar as respostas' : '🔇 Voz desativada');
+}
+
+function profiaStripForSpeech(html) {
+  const tmp = document.createElement('div');
+  tmp.innerHTML = String(html || '');
+  return (tmp.textContent || tmp.innerText || '').replace(/\s+/g, ' ').trim();
+}
+
+function profiaSpeak(rawText) {
+  if (!profiaVoiceEnabled || !('speechSynthesis' in window)) return;
+  const clean = profiaStripForSpeech(rawText);
+  if (!clean) return;
+
+  window.speechSynthesis.cancel(); // evita sobrepor falas
+  const utter = new SpeechSynthesisUtterance(clean);
+  utter.lang = 'pt-BR';
+  utter.rate = 0.95;
+  utter.pitch = 1.05;
+  const voice = profiaGetPtVoice();
+  if (voice) utter.voice = voice;
+
+  const statusEl = document.getElementById('profiaStatus');
+  utter.onstart = () => { if (statusEl) statusEl.textContent = '🗣️ Falando...'; };
+  utter.onend   = () => { if (statusEl) statusEl.textContent = profiaDefaultStatus(); };
+  utter.onerror = () => { if (statusEl) statusEl.textContent = profiaDefaultStatus(); };
+
+  window.speechSynthesis.speak(utter);
+}
+
+function profiaGetRecognition() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) return null;
+  if (profiaRecognition) return profiaRecognition;
+
+  profiaRecognition = new SR();
+  profiaRecognition.lang = 'pt-BR';
+  profiaRecognition.interimResults = false;
+  profiaRecognition.maxAlternatives = 1;
+  profiaRecognition.continuous = false;
+
+  profiaRecognition.onstart = () => {
+    profiaListening = true;
+    const btn = document.getElementById('profiaMicBtn');
+    if (btn) { btn.classList.add('listening'); btn.textContent = '🔴'; btn.title = 'Toque para parar de ouvir'; }
+    const statusEl = document.getElementById('profiaStatus');
+    if (statusEl) statusEl.textContent = '👂 Ouvindo... pode falar!';
+  };
+
+  profiaRecognition.onresult = (event) => {
+    const said = event.results[0][0].transcript;
+    const inp = document.getElementById('profiaInput');
+    inp.value = said;
+    profiaResize(inp);
+    profiaSend();
+  };
+
+  profiaRecognition.onerror = (event) => {
+    let msg = '🎤 Não consegui te ouvir. Tenta de novo?';
+    if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+      msg = '🎤 Preciso de permissão para usar o microfone.';
+    } else if (event.error === 'no-speech') {
+      msg = '🎤 Não ouvi nada. Toque de novo e fale bem pertinho do microfone!';
+    }
+    toast(msg);
+  };
+
+  profiaRecognition.onend = () => {
+    profiaListening = false;
+    const btn = document.getElementById('profiaMicBtn');
+    if (btn) { btn.classList.remove('listening'); btn.textContent = '🎤'; btn.title = 'Perguntar por voz'; }
+    const statusEl = document.getElementById('profiaStatus');
+    if (statusEl && statusEl.textContent === '👂 Ouvindo... pode falar!') statusEl.textContent = profiaDefaultStatus();
+  };
+
+  return profiaRecognition;
+}
+
+function profiaToggleListening() {
+  const rec = profiaGetRecognition();
+  if (!rec) { toast('🎤 Esse navegador não tem microfone por voz. Tenta usar o Chrome!'); return; }
+  if (profiaListening) { rec.stop(); return; }
+  if (window.speechSynthesis) window.speechSynthesis.cancel();
+  try { rec.start(); } catch (e) { /* reconhecimento já em andamento */ }
 }
 </script>
 </body>
