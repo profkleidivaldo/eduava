@@ -328,6 +328,8 @@ window.addEventListener('load', async () => {
   emailPrefix = btoa(user.email) + '_';
   await loadTurmas();
   showSection('dashboard');
+  // Prof. TuTu avisa das aulas pendentes (sem bloquear a tela)
+  setTimeout(() => { if (window.profiaNotificarPendentes) window.profiaNotificarPendentes(); }, 600);
 });
 
 function logout() { localStorage.removeItem('ava_user'); window.location.href='index.html'; }
@@ -470,6 +472,7 @@ async function abrirAula(id, titulo, file_id, turma_id) {
   if (data.error) { toast('Erro: '+data.error); return; }
 
   aulaAberta = { id, titulo, turma_id };
+  try { localStorage.setItem(emailPrefix + 'aula_vista_' + id, '1'); } catch(e) {}
 
   // ── Tutora IA: avisa o widget qual aula/turma o aluno está vendo agora ──
   if (window.profiaSetContexto) {
@@ -824,6 +827,89 @@ window.profiaSetContexto = function(turmaNome, aulaTitulo) {
   profiaContexto = { turma_nome: turmaNome || "", aula_titulo: aulaTitulo || "" };
   const st = document.getElementById('profiaStatus');
   if (st) st.textContent = aulaTitulo ? ('Sobre: ' + aulaTitulo) : 'Vamos pensar juntos?';
+};
+
+// ════════════════════════════════════════════════════════════
+// AVISO PERSONALIZADO DE AULAS PENDENTES
+// Pendente = aula publicada em que o aluno ainda não respondeu nada.
+// "Nova" = publicada nos últimos 7 dias.
+// ════════════════════════════════════════════════════════════
+let profiaPendentes = [];
+
+function profiaTemAtividades(html) {
+  const d = new DOMParser().parseFromString(html || '', 'text/html');
+  return !!d.querySelector('.pergunta-direta, .quiz-card');
+}
+
+async function profiaBuscarPendentes() {
+  const lista = [];
+  await Promise.all(turmas.map(async t => {
+    let aulasT = [];
+    try { aulasT = ((await post({ action:'getAulas', turma_id: t.id })).aulas || []).filter(a => a.status === 'publicada'); }
+    catch(e) { return; }
+    await Promise.all(aulasT.map(async a => {
+      try {
+        const r = await post({ action:'getRespostas', aluno_email: user.email, aula_id: a.id });
+        const resps = (r.respostas || []).filter(x => !String(x.chave).startsWith('corr_') && String(x.valor || '').trim() !== '');
+        if (resps.length) return; // já respondeu algo
+        // Se já abriu a aula e ela não tem atividades, considera feita
+        if (localStorage.getItem(emailPrefix + 'aula_vista_' + a.id)) {
+          const full = await post({ action:'getAula', id: a.id });
+          if (!profiaTemAtividades(full.aula && full.aula.html)) return;
+        }
+        const dias = (Date.now() - new Date(a.created_at).getTime()) / 86400000;
+        lista.push({ id: a.id, titulo: a.titulo, turma_id: t.id, turma_nome: t.nome, file_id: a.file_id || '', nova: dias <= 7, created: new Date(a.created_at).getTime() });
+      } catch(e) {}
+    }));
+  }));
+  return lista.sort((x, y) => y.created - x.created);
+}
+
+window.profiaAbrirPendente = function(i) {
+  const p = profiaPendentes[i]; if (!p) return;
+  document.getElementById('profiaPanel').classList.remove('open');
+  if (window.speechSynthesis) window.speechSynthesis.cancel();
+  abrirAula(p.id, p.titulo, p.file_id, p.turma_id);
+};
+
+window.profiaNotificarPendentes = async function() {
+  if (!turmas.length) return;
+  profiaPendentes = await profiaBuscarPendentes();
+  if (!profiaPendentes.length) return;
+
+  const nome = (user.nome || '').split(' ')[0];
+  const h = new Date().getHours();
+  const saud = h < 12 ? 'Bom dia' : h < 18 ? 'Boa tarde' : 'Boa noite';
+  const n = profiaPendentes.length;
+  const novas = profiaPendentes.filter(p => p.nova).length;
+
+  let intro = `${saud}, ${profiaEsc(nome)}! 🥸 Eu sou o Prof. TuTu. `;
+  if (n === 1) intro += novas ? 'Tem <strong>1 aula nova</strong> esperando por você:' : 'Tem <strong>1 aula</strong> que você ainda não fez:';
+  else intro += novas
+    ? `Tem <strong>${n} aulas</strong> que você ainda não fez (${novas} ${novas === 1 ? 'é nova' : 'são novas'}):`
+    : `Tem <strong>${n} aulas</strong> que você ainda não fez:`;
+
+  const MAX = 5;
+  const itens = profiaPendentes.slice(0, MAX).map((p, i) => `
+    <div style="margin-top:6px">
+      <button onclick="profiaAbrirPendente(${i})" style="width:100%;text-align:left;padding:8px 10px;border:1.5px solid var(--profia-border);border-radius:9px;background:#fff;cursor:pointer;font-family:inherit;font-size:12px;color:var(--profia-p1);font-weight:600">
+        ${p.nova ? '🆕 ' : '📖 '}${profiaEsc(p.titulo)}
+        <span style="display:block;font-weight:400;color:var(--profia-muted);font-size:11px">${profiaEsc(p.turma_nome)}</span>
+      </button>
+    </div>`).join('');
+  const resto = n > MAX ? `<div style="margin-top:6px;font-size:11px;color:var(--profia-muted)">…e mais ${n - MAX}.</div>` : '';
+  const fecho = `<div style="margin-top:8px">Quer começar por alguma? Se travar, é só me chamar que a gente pensa junto! 💪</div>`;
+
+  profiaOpened = true; // evita a saudação genérica
+  document.getElementById('profiaPanel').classList.add('open');
+  loadMermaidIfNeeded();
+  profiaUpdateVoiceBtn();
+  profiaAddMsg('ai', intro + itens + resto + fecho);
+
+  const falado = n === 1
+    ? `${saud}, ${nome}! Tem uma ${novas ? 'aula nova' : 'aula'} esperando por você: ${profiaPendentes[0].titulo}.`
+    : `${saud}, ${nome}! Você tem ${n} aulas que ainda não fez. Dá uma olhada na lista!`;
+  profiaSpeak(falado);
 };
 
 function toggleProfIA() {
